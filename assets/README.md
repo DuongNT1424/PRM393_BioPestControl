@@ -1,0 +1,1 @@
+Thư mục chứa các tài nguyên như hình ảnh, biểu tượng (icons), font chữ, v.v.
