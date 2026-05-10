@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "942903223715",
+    "project_id": "biopestcontrol-6c9f4",
+    "storage_bucket": "biopestcontrol-6c9f4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:942903223715:android:4aada1dc7a0a3c97a26616",
+        "android_client_info": {
+          "package_name": "com.example.prm393_biopestcontrol"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "942903223715-0g1sdtjf3e5hojpfgqrta42vlq6bcb6f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.prm393_biopestcontrol",
+            "certificate_hash": "dc7a4477018dceb1228f294782870d79704ee0a0"
+          }
+        },
+        {
+          "client_id": "942903223715-l9edd99j88nfsgefo36oqd4mok6i94fg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfERDCXuVzId7l1Se85GjYfF9hlAJo12I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "942903223715-l9edd99j88nfsgefo36oqd4mok6i94fg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
