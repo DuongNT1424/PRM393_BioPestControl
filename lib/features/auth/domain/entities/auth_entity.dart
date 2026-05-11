@@ -12,14 +12,17 @@ class AuthEntity extends Equatable {
   // Đường dẫn ảnh đại diện (nếu có)
   final String? photoUrl;
 
+  final String? role;
+
   const AuthEntity({
     this.id,
     this.email,
     this.name,
     this.photoUrl,
+    this.role,
   });
 
   @override
   // Props giúp Equatable so sánh các đối tượng dựa trên giá trị thuộc tính
-  List<Object?> get props => [id, email, name, photoUrl];
+  List<Object?> get props => [id, email, name, photoUrl, role];
 }

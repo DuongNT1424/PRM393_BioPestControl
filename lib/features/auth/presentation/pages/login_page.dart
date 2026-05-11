@@ -8,10 +8,10 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
 // Import các widget dùng chung và màu sắc
-import '../widgets/auth_colors.dart';
+import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/shared/widgets/custom_text_field.dart';
+import 'package:prm393_biopestcontrol/shared/widgets/custom_button.dart';
 import '../widgets/auth_header.dart';
-import '../widgets/auth_text_field.dart';
-import '../widgets/auth_button.dart';
 import '../widgets/google_auth_button.dart';
 import '../widgets/auth_background_decoration.dart';
 import 'register_page.dart';
@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AuthColors.surfaceColor,
+      backgroundColor: AppColors.surfaceColor,
       body: BlocConsumer<AuthBloc, AuthState>(
         // Lắng nghe các thay đổi trạng thái từ AuthBloc
         listener: (context, state) {
@@ -74,8 +74,8 @@ class _LoginPageState extends State<LoginPage> {
                                   constraints: const BoxConstraints(maxWidth: 440),
                                   padding: const EdgeInsets.all(24),
                                   decoration: BoxDecoration(
-                                    color: AuthColors.surfaceContainerLowest,
-                                    border: Border.all(color: AuthColors.outlineVariant),
+                                    color: AppColors.surfaceContainerLowest,
+                                    border: Border.all(color: AppColors.outlineVariant),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Column(
@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                                         style: GoogleFonts.inter(
                                           fontSize: 24,
                                           fontWeight: FontWeight.w500,
-                                          color: AuthColors.onSurface,
+                                          color: AppColors.onSurface,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
@@ -95,13 +95,13 @@ class _LoginPageState extends State<LoginPage> {
                                         'Truy cập vào hệ thống quản lý sinh học của bạn.',
                                         style: GoogleFonts.inter(
                                           fontSize: 16,
-                                          color: AuthColors.onSurfaceVariant,
+                                          color: AppColors.onSurfaceVariant,
                                         ),
                                       ),
                                       const SizedBox(height: 32),
 
                                       // Trường nhập Email
-                                      AuthTextField(
+                                      CustomTextField(
                                         label: 'Email của bạn',
                                         controller: _emailController,
                                         hintText: 'ten@biopest.com',
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                                       const SizedBox(height: 24),
 
                                       // Trường nhập Mật khẩu
-                                      AuthTextField(
+                                      CustomTextField(
                                         label: 'Mật khẩu',
                                         controller: _passwordController,
                                         hintText: '••••••••',
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                                             style: GoogleFonts.inter(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
-                                              color: AuthColors.primaryColor,
+                                              color: AppColors.primaryColor,
                                             ),
                                           ),
                                         ),
@@ -136,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
                                       if (state is AuthLoading)
                                         const Center(child: CircularProgressIndicator())
                                       else
-                                        AuthButton(
+                                        CustomButton(
                                           text: 'Đăng nhập',
                                           icon: Icons.arrow_forward,
                                           onPressed: () {
@@ -155,18 +155,18 @@ class _LoginPageState extends State<LoginPage> {
                                         padding: const EdgeInsets.symmetric(vertical: 32),
                                         child: Row(
                                           children: [
-                                            const Expanded(child: Divider(color: AuthColors.outlineVariant)),
+                                            const Expanded(child: Divider(color: AppColors.outlineVariant)),
                                             Padding(
                                               padding: const EdgeInsets.symmetric(horizontal: 16),
                                               child: Text(
                                                 'HOẶC',
                                                 style: GoogleFonts.inter(
                                                   fontSize: 12,
-                                                  color: AuthColors.outlineColor,
+                                                  color: AppColors.outlineColor,
                                                 ),
                                               ),
                                             ),
-                                            const Expanded(child: Divider(color: AuthColors.outlineVariant)),
+                                            const Expanded(child: Divider(color: AppColors.outlineVariant)),
                                           ],
                                         ),
                                       ),
@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                                               'Chưa có tài khoản? ',
                                               style: GoogleFonts.inter(
                                                 fontSize: 16,
-                                                color: AuthColors.onSurfaceVariant,
+                                                color: AppColors.onSurfaceVariant,
                                               ),
                                             ),
                                             GestureDetector(
@@ -200,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                                                 style: GoogleFonts.inter(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w600,
-                                                  color: AuthColors.primaryColor,
+                                                  color: AppColors.primaryColor,
                                                 ),
                                               ),
                                             ),

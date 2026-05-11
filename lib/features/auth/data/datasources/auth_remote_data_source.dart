@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/auth_model.dart';
@@ -15,10 +16,12 @@ abstract class AuthRemoteDataSource {
 /// Triển khai thực tế các phương thức xác thực sử dụng Firebase SDK.
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth firebaseAuth;
+  final FirebaseFirestore firestore;
   final GoogleSignIn googleSignIn;
 
   AuthRemoteDataSourceImpl({
     required this.firebaseAuth,
+    required this.firestore,
     required this.googleSignIn,
   });
 
@@ -31,8 +34,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
       if (response.user != null) {
-        // Chuyển đổi User của Firebase sang AuthModel của hệ thống
-        return AuthModel.fromFirebase(response.user!);
+        // Lấy role từ Firestore
+        final doc = await firestore.collection('users').doc(response.user!.uid).get();
+        final data = doc.data();
+        final role = (doc.exists && data != null) ? data['role'] as String? : 'customer';
+        
+        return AuthModel.fromFirebase(response.user!, role: role);
       } else {
         throw Exception("User is null");
       }
@@ -50,11 +57,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
       if (response.user != null) {
-        // Cập nhật thuộc tính DisplayName của User trong Firebase
         await response.user!.updateDisplayName(name);
-        // Lấy lại user hiện tại để đảm bảo tên đã được cập nhật
+        
+        // Lưu thông tin role vào Firestore (mặc định là customer)
+        const role = 'customer';
+        await firestore.collection('users').doc(response.user!.uid).set({
+          'uid': response.user!.uid,
+          'email': email,
+          'name': name,
+          'role': role,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
         final user = firebaseAuth.currentUser!;
-        return AuthModel.fromFirebase(user);
+        return AuthModel.fromFirebase(user, role: role);
       } else {
         throw Exception("User is null");
       }
@@ -67,23 +83,35 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   // Quy trình đăng nhập bằng Google (Lấy token và tạo credential cho Firebase)
   Future<AuthModel> loginWithGoogle() async {
     try {
-      // 1. Kích hoạt hộp thoại chọn tài khoản Google
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) throw Exception("Google Sign In cancelled");
 
-      // 2. Lấy thông tin xác thực (token) từ tài khoản Google
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       
-      // 3. Tạo credential để Firebase hiểu được đây là login từ Google
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // 4. Đăng nhập vào Firebase bằng credential Google
       final userCredential = await firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
-        return AuthModel.fromFirebase(userCredential.user!);
+        // Kiểm tra xem user đã có trong Firestore chưa, nếu chưa thì tạo mới với role customer
+        final userDoc = await firestore.collection('users').doc(userCredential.user!.uid).get();
+        String role = 'customer';
+        
+        if (!userDoc.exists) {
+          await firestore.collection('users').doc(userCredential.user!.uid).set({
+            'uid': userCredential.user!.uid,
+            'email': userCredential.user!.email,
+            'name': userCredential.user!.displayName,
+            'role': role,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        } else {
+          role = userDoc.data()?['role'] ?? 'customer';
+        }
+
+        return AuthModel.fromFirebase(userCredential.user!, role: role);
       } else {
         throw Exception("User is null");
       }
@@ -104,7 +132,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthModel?> getCurrentUser() async {
     final user = firebaseAuth.currentUser;
     if (user != null) {
-      return AuthModel.fromFirebase(user);
+      final doc = await firestore.collection('users').doc(user.uid).get();
+      final data = doc.data();
+      final role = (doc.exists && data != null) ? data['role'] as String? : 'customer';
+      return AuthModel.fromFirebase(user, role: role);
     }
     return null;
   }

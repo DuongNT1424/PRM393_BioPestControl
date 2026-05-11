@@ -5,6 +5,11 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/customer_page.dart';
+// Dashboard quản lý đã được chuyển sang feature statistics để đúng kiến trúc
+import 'features/statistics/presentation/pages/management_page.dart';
+import 'features/statistics/presentation/bloc/statistics_bloc.dart';
+import 'features/statistics/presentation/bloc/statistics_event.dart';
 import 'injection_container.dart' as di;
 
 void main() async {
@@ -34,7 +39,7 @@ class MyApp extends StatelessWidget {
         title: 'BioPest Control',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D631B)),
           useMaterial3: true,
           inputDecorationTheme: const InputDecorationTheme(
             filled: true,
@@ -55,7 +60,18 @@ class AuthWrapper extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is Authenticated) {
-          return const HomePage();
+          final role = state.user.role?.toLowerCase() ?? 'customer';
+          switch (role) {
+            case 'admin':
+            case 'staff':
+              return BlocProvider(
+                create: (context) => di.sl<StatisticsBloc>()..add(const LoadStatisticsEvent()),
+                child: ManagementPage(user: state.user),
+              );
+            case 'customer':
+            default:
+              return const CustomerPage();
+          }
         } else if (state is Unauthenticated || state is AuthError) {
           return const LoginPage();
         }
@@ -88,7 +104,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.eco, size: 100, color: Colors.green),
+            const Icon(Icons.eco, size: 100, color: Color(0xFF0D631B)),
             const SizedBox(height: 20),
             Text(
               'Welcome to BioPest Control',

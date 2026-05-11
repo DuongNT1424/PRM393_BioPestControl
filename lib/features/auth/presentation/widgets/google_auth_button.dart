@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'auth_colors.dart';
+import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
 
 /// Nút đăng nhập nhanh bằng tài khoản Google.
 /// Thiết kế tuân thủ hướng dẫn nhận diện của Google.
@@ -15,7 +15,7 @@ class GoogleAuthButton extends StatelessWidget {
       },
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(double.infinity, 56),
-        side: BorderSide(color: AuthColors.primaryColor.withOpacity(0.1)),
+        side: BorderSide(color: AppColors.primaryColor.withOpacity(0.1)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
@@ -32,7 +32,7 @@ class GoogleAuthButton extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AuthColors.onSurface,
+              color: AppColors.onSurface,
             ),
           ),
         ],
