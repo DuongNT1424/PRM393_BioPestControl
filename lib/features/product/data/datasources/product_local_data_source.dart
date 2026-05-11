@@ -3,7 +3,9 @@ import '../models/product_model.dart';
 
 abstract class ProductLocalDataSource {
   Future<List<ProductModel>> getProducts();
+  Future<ProductModel> getProductById(int id);
   Future<List<ProductModel>> searchProducts(String query);
+  Future<List<ProductModel>> filterProducts({int? categoryId, bool? isActive});
   Future<void> addProduct(ProductModel product);
   Future<void> updateProduct(ProductModel product);
   Future<void> deleteProduct(int id);
@@ -22,12 +24,52 @@ class ProductLocalDataSourceImpl implements ProductLocalDataSource {
   }
 
   @override
+  Future<ProductModel> getProductById(int id) async {
+    final db = await dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'products',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (maps.isNotEmpty) {
+      return ProductModel.fromMap(maps.first);
+    } else {
+      throw Exception('Product not found');
+    }
+  }
+
+  @override
   Future<List<ProductModel>> searchProducts(String query) async {
     final db = await dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'products',
       where: 'name LIKE ? OR sku LIKE ?',
       whereArgs: ['%$query%', '%$query%'],
+    );
+    return maps.map((map) => ProductModel.fromMap(map)).toList();
+  }
+
+  @override
+  Future<List<ProductModel>> filterProducts({int? categoryId, bool? isActive}) async {
+    final db = await dbHelper.database;
+    String whereClause = '';
+    List<dynamic> whereArgs = [];
+
+    if (categoryId != null) {
+      whereClause += 'category_id = ?';
+      whereArgs.add(categoryId);
+    }
+
+    if (isActive != null) {
+      if (whereClause.isNotEmpty) whereClause += ' AND ';
+      whereClause += 'is_active = ?';
+      whereArgs.add(isActive ? 1 : 0);
+    }
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'products',
+      where: whereClause.isEmpty ? null : whereClause,
+      whereArgs: whereArgs.isEmpty ? null : whereArgs,
     );
     return maps.map((map) => ProductModel.fromMap(map)).toList();
   }
