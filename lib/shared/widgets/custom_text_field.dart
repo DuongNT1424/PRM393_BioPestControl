@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'auth_colors.dart';
+import '../theme/app_colors.dart';
 
-/// Widget nhập liệu tùy chỉnh dành cho Form Authentication.
-/// Hỗ trợ Label, HintText, Icon và chế độ ẩn mật khẩu.
-class AuthTextField extends StatelessWidget {
+/// [CustomTextField] là Widget nhập liệu tùy chỉnh dùng chung cho toàn bộ ứng dụng.
+/// 
+/// Widget này cung cấp giao diện chuẩn bao gồm Label phía trên, ô nhập liệu có Border
+/// bo tròn nhẹ, hỗ trợ Prefix Icon và Trailing Widget (như nút hiện/ẩn mật khẩu).
+class CustomTextField extends StatelessWidget {
+  /// Tiêu đề hiển thị ngay phía trên ô nhập liệu.
   final String label;
+  
+  /// Bộ điều khiển dữ liệu nhập vào.
   final TextEditingController controller;
+  
+  /// Văn bản gợi ý hiển thị mờ bên trong ô nhập.
   final String hintText;
+  
+  /// Biểu tượng ở đầu ô nhập liệu.
   final IconData icon;
+  
+  /// Chế độ ẩn văn bản (dùng cho Mật khẩu).
   final bool obscureText;
+  
+  /// Widget hiển thị ở cuối ô nhập liệu.
   final Widget? trailing;
 
-  const AuthTextField({
+  const CustomTextField({
     super.key,
     required this.label,
     required this.controller,
@@ -33,7 +46,7 @@ class AuthTextField extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AuthColors.primaryColor,
+            color: AppColors.primaryColor,
           ),
         ),
         const SizedBox(height: 8),
@@ -44,19 +57,17 @@ class AuthTextField extends StatelessWidget {
           style: GoogleFonts.inter(fontSize: 16),
           decoration: InputDecoration(
             hintText: hintText,
-            prefixIcon: Icon(icon, color: AuthColors.outlineColor),
+            prefixIcon: Icon(icon, color: AppColors.outlineColor),
             suffixIcon: trailing,
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            // Định nghĩa border khi ở trạng thái bình thường
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: AuthColors.primaryColor.withOpacity(0.2)),
+              borderSide: BorderSide(color: AppColors.primaryColor.withOpacity(0.2)),
               borderRadius: BorderRadius.circular(4),
             ),
-            // Định nghĩa border khi được focus (nhấn vào)
             focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: AuthColors.primaryColor, width: 1.5),
+              borderSide: const BorderSide(color: AppColors.primaryColor, width: 1.5),
               borderRadius: BorderRadius.circular(4),
             ),
           ),

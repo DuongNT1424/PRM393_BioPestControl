@@ -9,6 +9,7 @@ class AuthModel extends AuthEntity {
     super.email,
     super.name,
     super.photoUrl,
+    super.role,
   });
 
   // Chuyển đổi từ dữ liệu JSON (thường từ API) sang AuthModel
@@ -18,6 +19,7 @@ class AuthModel extends AuthEntity {
       email: json['email'],
       name: json['name'],
       photoUrl: json['photoUrl'],
+      role: json['role'],
     );
   }
 
@@ -28,16 +30,18 @@ class AuthModel extends AuthEntity {
       'email': email,
       'name': name,
       'photoUrl': photoUrl,
+      'role': role,
     };
   }
 
   // Chuyển đổi từ đối tượng User của Firebase SDK sang AuthModel
-  factory AuthModel.fromFirebase(dynamic user) {
+  factory AuthModel.fromFirebase(dynamic user, {String? role}) {
     return AuthModel(
       id: user.uid,
       email: user.email,
       name: user.displayName,
       photoUrl: user.photoURL,
+      role: role,
     );
   }
 }

@@ -8,8 +8,9 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
 // Import các widget và màu sắc cho giao diện Authentication
-import '../widgets/auth_colors.dart';
-import '../widgets/auth_text_field.dart';
+import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/shared/widgets/custom_text_field.dart';
+import 'package:prm393_biopestcontrol/shared/widgets/custom_button.dart';
 import '../widgets/register_header.dart';
 import '../widgets/register_side_decoration.dart';
 import '../widgets/auth_bento_background.dart';
@@ -32,7 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AuthColors.surfaceColor,
+      backgroundColor: AppColors.surfaceColor,
       body: BlocConsumer<AuthBloc, AuthState>(
         // Lắng nghe trạng thái từ AuthBloc
         listener: (context, state) {
@@ -66,7 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       width: double.infinity,
                       constraints: const BoxConstraints(maxWidth: 480),
                       decoration: BoxDecoration(
-                        color: AuthColors.surfaceContainerLowest,
+                        color: AppColors.surfaceContainerLowest,
                         border: Border.all(color: const Color(0xFFE8F5E9)),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -88,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   style: GoogleFonts.inter(
                                     fontSize: 24,
                                     fontWeight: FontWeight.w500,
-                                    color: AuthColors.onSurface,
+                                    color: AppColors.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -97,13 +98,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: AuthColors.onSurfaceVariant,
+                                    color: AppColors.onSurfaceVariant,
                                   ),
                                 ),
                                 const SizedBox(height: 32),
 
                                 // Trường: Họ và tên
-                                AuthTextField(
+                                CustomTextField(
                                   label: 'Họ và tên',
                                   controller: _nameController,
                                   hintText: 'Nguyễn Văn A',
@@ -112,7 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 const SizedBox(height: 24),
 
                                 // Trường: Email
-                                AuthTextField(
+                                CustomTextField(
                                   label: 'Email',
                                   controller: _emailController,
                                   hintText: 'example@biopest.vn',
@@ -121,7 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 const SizedBox(height: 24),
 
                                 // Trường: Số điện thoại
-                                AuthTextField(
+                                CustomTextField(
                                   label: 'Số điện thoại',
                                   controller: _phoneController,
                                   hintText: '0901 234 567',
@@ -130,7 +131,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 const SizedBox(height: 24),
 
                                 // Trường: Mật khẩu
-                                AuthTextField(
+                                CustomTextField(
                                   label: 'Mật khẩu',
                                   controller: _passwordController,
                                   hintText: '••••••••',
@@ -140,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 const SizedBox(height: 24),
 
                                 // Trường: Xác nhận mật khẩu
-                                AuthTextField(
+                                CustomTextField(
                                   label: 'Xác nhận mật khẩu',
                                   controller: _confirmPasswordController,
                                   hintText: '••••••••',
@@ -153,7 +154,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                 if (state is AuthLoading)
                                   const Center(child: CircularProgressIndicator())
                                 else
-                                  ElevatedButton(
+                                  CustomButton(
+                                    text: 'Đăng ký',
+                                    icon: Icons.arrow_forward,
                                     onPressed: () {
                                       // Kiểm tra mật khẩu khớp nhau trước khi gửi request
                                       if (_passwordController.text != _confirmPasswordController.text) {
@@ -172,29 +175,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                         ),
                                       );
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AuthColors.primaryContainer,
-                                      foregroundColor: Colors.white,
-                                      minimumSize: const Size(double.infinity, 56),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Đăng ký',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        const Icon(Icons.arrow_forward, size: 18),
-                                      ],
-                                    ),
                                   ),
 
                                 const SizedBox(height: 32),
@@ -208,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         'Bạn đã có tài khoản? ',
                                         style: GoogleFonts.inter(
                                           fontSize: 16,
-                                          color: AuthColors.onSurfaceVariant,
+                                          color: AppColors.onSurfaceVariant,
                                         ),
                                       ),
                                       GestureDetector(
@@ -218,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                           style: GoogleFonts.inter(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: AuthColors.primaryColor,
+                                            color: AppColors.primaryColor,
                                           ),
                                         ),
                                       ),
