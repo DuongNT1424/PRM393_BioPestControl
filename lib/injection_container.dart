@@ -19,6 +19,12 @@ import 'core/database/database_helper.dart';
 import 'features/statistics/data/datasources/statistics_local_data_source.dart';
 import 'features/product/domain/repositories/product_repository.dart';
 import 'features/product/domain/usecases/get_products_usecase.dart';
+import 'features/product/domain/usecases/get_product_usecase.dart';
+import 'features/product/domain/usecases/search_products_usecase.dart';
+import 'features/product/domain/usecases/filter_products_usecase.dart';
+import 'features/product/domain/usecases/add_product_usecase.dart';
+import 'features/product/domain/usecases/update_product_usecase.dart';
+import 'features/product/domain/usecases/delete_product_usecase.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/data/datasources/product_local_data_source.dart';
 import 'features/product/presentation/bloc/product_bloc.dart';
@@ -48,7 +54,15 @@ Future<void> init() async {
 
   // Features - Statistics
   sl.registerFactory(() => StatisticsBloc(getStatisticsUseCase: sl()));
-  sl.registerFactory(() => ProductBloc(getProductsUseCase: sl()));
+  sl.registerFactory(() => ProductBloc(
+        getProductsUseCase: sl(),
+        getProductUseCase: sl(),
+        searchProductsUseCase: sl(),
+        filterProductsUseCase: sl(),
+        addProductUseCase: sl(),
+        updateProductUseCase: sl(),
+        deleteProductUseCase: sl(),
+      ));
   sl.registerFactory<CategoryBloc>(() => CategoryBloc(
         sl(),
         sl(),
@@ -58,6 +72,12 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
+  sl.registerLazySingleton(() => GetProductUseCase(sl()));
+  sl.registerLazySingleton(() => SearchProductsUseCase(sl()));
+  sl.registerLazySingleton(() => FilterProductsUseCase(sl()));
+  sl.registerLazySingleton(() => AddProductUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProductUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteProductUseCase(sl()));
   sl.registerLazySingleton(() => GetCategoriesUseCase(sl()));
   sl.registerLazySingleton(() => AddCategoryUseCase(sl()));
   sl.registerLazySingleton(() => UpdateCategoryUseCase(sl()));

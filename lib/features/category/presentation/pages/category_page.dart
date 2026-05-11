@@ -9,6 +9,10 @@ import 'package:prm393_biopestcontrol/features/category/presentation/widgets/cat
 import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/injection_container.dart' as di;
 
+import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
+
 class CategoryPage extends StatelessWidget {
   final AuthEntity user;
 
@@ -20,17 +24,26 @@ class CategoryPage extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => di.sl<CategoryBloc>()..add(LoadCategoriesEvent()),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text(
-            'Quản lý Danh mục',
-            style: TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.bold),
-          ),
+      child: Builder(
+        builder: (context) => Scaffold(
           backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: AppColors.primaryColor),
-        ),
+          appBar: AppBar(
+            title: const Text(
+              'Quản lý Danh mục',
+              style: TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+            ),
+            backgroundColor: Colors.white,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: AppColors.primaryColor),
+          ),
+          drawer: ManagementDrawer(
+            user: user,
+            isAdmin: isAdmin,
+            onLogout: () {
+              Navigator.pop(context);
+              context.read<AuthBloc>().add(LogoutRequested());
+            },
+          ),
         body: BlocConsumer<CategoryBloc, CategoryState>(
           listener: (context, state) {
             if (state is CategoryError) {
@@ -76,6 +89,7 @@ class CategoryPage extends StatelessWidget {
                 child: const Icon(Icons.add, color: Colors.white),
               )
             : null,
+        ),
       ),
     );
   }

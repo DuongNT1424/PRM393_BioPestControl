@@ -3,6 +3,11 @@ import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.
 import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/pages/product_page.dart';
 import 'package:prm393_biopestcontrol/features/category/presentation/pages/category_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:prm393_biopestcontrol/features/statistics/presentation/pages/management_page.dart';
+import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_bloc.dart';
+import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_event.dart';
+import 'package:prm393_biopestcontrol/injection_container.dart' as di;
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
 /// 
@@ -27,10 +32,12 @@ class ManagementDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Xác định trang hiện tại dựa trên ModalRoute để đánh dấu 'selected'
+    final String? currentRoute = ModalRoute.of(context)?.settings.name;
+
     return Drawer(
       backgroundColor: Colors.white,
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
           UserAccountsDrawerHeader(
             accountName: Text(
@@ -53,80 +60,117 @@ class ManagementDrawer extends StatelessWidget {
               border: Border(bottom: BorderSide(color: Colors.black12, width: 0.5)),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.dashboard_outlined),
-            title: const Text('Dashboard'),
-            selectedTileColor: AppColors.primaryColor,
-            selectedColor: Colors.white,
-            selected: true, // Giả định Dashboard đang được chọn
-            onTap: () => Navigator.pop(context),
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.warehouse_outlined,
-            title: 'Warehouse',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.eco,
-            title: 'Product',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProductPage()),
-              );
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.category_outlined,
-            title: 'Category',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CategoryPage(user: user)),
-              );
-            },
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.shopping_cart_outlined,
-            title: 'Order',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.sell_outlined,
-            title: 'Discount',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.article_outlined,
-            title: 'News/Article',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.security_outlined,
-            title: 'Chemical Safety',
-            onTap: () {},
-          ),
-          if (isAdmin)
-            _buildMenuItem(
-              context,
-              icon: Icons.badge_outlined,
-              title: 'Staff',
-              onTap: () {},
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildMenuItem(
+                  context,
+                  icon: Icons.dashboard_outlined,
+                  title: 'Dashboard',
+                  selected: currentRoute == '/management' || currentRoute == '/',
+                  onTap: () {
+                    Navigator.pop(context); // Đóng drawer
+                    if (currentRoute != '/management' && currentRoute != '/') {
+                      // Vì ManagementPage cần StatisticsBloc, chúng ta điều hướng qua AuthWrapper hoặc tái tạo lại
+                      // Tuy nhiên đơn giản nhất là pop cho đến khi về trang gốc nếu dùng pushReplacement
+                      // Hoặc dùng Navigator.pushReplacement
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MultiBlocProvider(
+                            providers: [
+                              BlocProvider(create: (context) => di.sl<StatisticsBloc>()..add(const LoadStatisticsEvent())),
+                            ],
+                            child: ManagementPage(user: user),
+                          ),
+                          settings: const RouteSettings(name: '/management'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.warehouse_outlined,
+                  title: 'Warehouse',
+                  onTap: () {},
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.eco,
+                  title: 'Product',
+                  selected: currentRoute == '/products',
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (currentRoute != '/products') {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductPage(user: user),
+                          settings: const RouteSettings(name: '/products'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.category_outlined,
+                  title: 'Category',
+                  selected: currentRoute == '/categories',
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (currentRoute != '/categories') {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CategoryPage(user: user),
+                          settings: const RouteSettings(name: '/categories'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.shopping_cart_outlined,
+                  title: 'Order',
+                  onTap: () {},
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.sell_outlined,
+                  title: 'Discount',
+                  onTap: () {},
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.article_outlined,
+                  title: 'News/Article',
+                  onTap: () {},
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.security_outlined,
+                  title: 'Chemical Safety',
+                  onTap: () {},
+                ),
+                if (isAdmin)
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.badge_outlined,
+                    title: 'Staff',
+                    onTap: () {},
+                  ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.people_alt_outlined,
+                  title: 'Customer',
+                  onTap: () {},
+                ),
+              ],
             ),
-          _buildMenuItem(
-            context,
-            icon: Icons.people_alt_outlined,
-            title: 'Customer',
-            onTap: () {},
           ),
           const Divider(),
           ListTile(
@@ -134,6 +178,7 @@ class ManagementDrawer extends StatelessWidget {
             title: const Text('Logout', style: TextStyle(color: Colors.redAccent)),
             onTap: onLogout,
           ),
+          const SizedBox(height: 20),
         ],
       ),
     );

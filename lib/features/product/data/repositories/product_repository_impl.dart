@@ -21,12 +21,32 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
+  Future<Either<Failure, ProductEntity>> getProductById(int id) async {
+    try {
+      final product = await localDataSource.getProductById(id);
+      return Right<Failure, ProductEntity>(product);
+    } catch (e) {
+      return const Left(DatabaseFailure('Không tìm thấy sản phẩm'));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<ProductEntity>>> searchProducts(String query) async {
     try {
       final products = await localDataSource.searchProducts(query);
       return Right<Failure, List<ProductEntity>>(products);
     } catch (e) {
       return const Left(DatabaseFailure('Lỗi khi tìm kiếm sản phẩm'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<ProductEntity>>> filterProducts({int? categoryId, bool? isActive}) async {
+    try {
+      final products = await localDataSource.filterProducts(categoryId: categoryId, isActive: isActive);
+      return Right<Failure, List<ProductEntity>>(products);
+    } catch (e) {
+      return const Left(DatabaseFailure('Lỗi khi lọc sản phẩm'));
     }
   }
 
