@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// Header dành riêng cho khối nội dung chính trong trang Đăng ký.
 /// Chứa Logo và slogan, được đặt bên trong container của Form.

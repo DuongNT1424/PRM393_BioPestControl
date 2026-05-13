@@ -8,7 +8,7 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
 // Import các widget và màu sắc cho giao diện Authentication
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/shared/widgets/custom_text_field.dart';
 import 'package:prm393_biopestcontrol/shared/widgets/custom_button.dart';
 import '../widgets/register_header.dart';

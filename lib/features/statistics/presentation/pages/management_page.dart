@@ -7,7 +7,7 @@ import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_bloc.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_event.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_state.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
 import '../widgets/management_stat_card.dart';
 

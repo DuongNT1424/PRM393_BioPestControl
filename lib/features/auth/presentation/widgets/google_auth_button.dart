@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// Nút đăng nhập nhanh bằng tài khoản Google.
 /// Thiết kế tuân thủ hướng dẫn nhận diện của Google.

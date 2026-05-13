@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// Header thương hiệu cho trang Đăng nhập.
 /// Chứa Logo và tên ứng dụng kèm câu slogan giới thiệu.

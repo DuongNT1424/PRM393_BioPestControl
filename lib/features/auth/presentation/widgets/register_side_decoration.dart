@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// Thanh trang trí bất đối xứng (Asymmetric Detail) bên trái trang Đăng ký.
 /// Chỉ hiển thị khi màn hình đủ rộng (>1024px) để tạo phong cách bento.

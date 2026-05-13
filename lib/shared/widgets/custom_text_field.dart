@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// [CustomTextField] là Widget nhập liệu tùy chỉnh dùng chung cho toàn bộ ứng dụng.
 /// 
