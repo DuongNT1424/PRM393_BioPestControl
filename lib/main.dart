@@ -39,8 +39,28 @@ class MyApp extends StatelessWidget {
         title: 'BioPest Control',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0D631B)),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0D631B),
+            surface: Colors.white, // Màu nền chính là trắng
+          ),
           useMaterial3: true,
+          dialogBackgroundColor: Colors.white, // Ép màu nền Dialog là trắng
+          dropdownMenuTheme: DropdownMenuThemeData(
+            menuStyle: MenuStyle(
+              backgroundColor: WidgetStateProperty.all(Colors.white),
+              surfaceTintColor: WidgetStateProperty.all(Colors.white),
+            ),
+          ),
+          menuTheme: MenuThemeData(
+            style: MenuStyle(
+              backgroundColor: WidgetStateProperty.all(Colors.white),
+              surfaceTintColor: WidgetStateProperty.all(Colors.white),
+            ),
+          ),
+          popupMenuTheme: const PopupMenuThemeData(
+            color: Colors.white,
+            surfaceTintColor: Colors.white,
+          ),
           inputDecorationTheme: const InputDecorationTheme(
             filled: true,
             fillColor: Color(0xFFF3F3F3),

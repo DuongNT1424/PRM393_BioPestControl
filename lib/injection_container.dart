@@ -37,6 +37,14 @@ import 'features/category/data/repositories/category_repository_impl.dart';
 import 'features/category/data/datasources/category_local_data_source.dart';
 import 'features/category/presentation/bloc/category_bloc.dart';
 
+import 'features/warehouse/domain/repositories/warehouse_repository.dart';
+import 'features/warehouse/domain/usecases/get_warehouses_usecase.dart';
+import 'features/warehouse/domain/usecases/search_warehouse_inventory_usecase.dart';
+import 'features/warehouse/domain/usecases/import_product_usecase.dart';
+import 'features/warehouse/data/repositories/warehouse_repository_impl.dart';
+import 'features/warehouse/data/datasources/warehouse_local_data_source.dart';
+import 'features/warehouse/presentation/bloc/warehouse_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -69,6 +77,11 @@ Future<void> init() async {
         sl(),
         sl(),
       ));
+  sl.registerFactory(() => WarehouseBloc(
+        getWarehousesUseCase: sl(),
+        searchInventoryUseCase: sl(),
+        importProductUseCase: sl(),
+      ));
 
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
@@ -82,6 +95,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddCategoryUseCase(sl()));
   sl.registerLazySingleton(() => UpdateCategoryUseCase(sl()));
   sl.registerLazySingleton(() => DeleteCategoryUseCase(sl()));
+  sl.registerLazySingleton(() => GetWarehousesUseCase(sl()));
+  sl.registerLazySingleton(() => SearchWarehouseInventoryUseCase(sl()));
+  sl.registerLazySingleton(() => ImportProductUseCase(sl()));
 
   sl.registerLazySingleton<StatisticsRepository>(
     () => StatisticsRepositoryImpl(localDataSource: sl()),
@@ -91,6 +107,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CategoryRepository>(
     () => CategoryRepositoryImpl(localDataSource: sl()),
+  );
+  sl.registerLazySingleton<WarehouseRepository>(
+    () => WarehouseRepositoryImpl(localDataSource: sl()),
   );
 
   // Data sources
@@ -102,6 +121,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CategoryLocalDataSource>(
     () => CategoryLocalDataSourceImpl(dbHelper: sl()),
+  );
+  sl.registerLazySingleton<WarehouseLocalDataSource>(
+    () => WarehouseLocalDataSourceImpl(dbHelper: sl()),
   );
 
   // Use cases

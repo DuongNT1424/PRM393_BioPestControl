@@ -3,6 +3,7 @@ import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.
 import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/pages/product_page.dart';
 import 'package:prm393_biopestcontrol/features/category/presentation/pages/category_page.dart';
+import 'package:prm393_biopestcontrol/features/warehouse/presentation/pages/warehouse_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/pages/management_page.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_bloc.dart';
@@ -94,7 +95,19 @@ class ManagementDrawer extends StatelessWidget {
                   context,
                   icon: Icons.warehouse_outlined,
                   title: 'Warehouse',
-                  onTap: () {},
+                  selected: currentRoute == '/warehouse',
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (currentRoute != '/warehouse') {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WarehousePage(user: user),
+                          settings: const RouteSettings(name: '/warehouse'),
+                        ),
+                      );
+                    }
+                  },
                 ),
                 _buildMenuItem(
                   context,
