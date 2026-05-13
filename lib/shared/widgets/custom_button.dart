@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// [CustomButton] là Widget nút bấm chuẩn hóa cho toàn bộ dự án.
 /// 

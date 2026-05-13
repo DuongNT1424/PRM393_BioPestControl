@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// [ProductDetailHeader] hiển thị hình ảnh sản phẩm trong trang chi tiết.
 class ProductDetailHeader extends StatelessWidget {

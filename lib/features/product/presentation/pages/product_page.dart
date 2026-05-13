@@ -14,8 +14,8 @@ import 'package:prm393_biopestcontrol/features/category/domain/entities/category
 import 'package:prm393_biopestcontrol/features/category/presentation/bloc/category_bloc.dart';
 import 'package:prm393_biopestcontrol/features/category/presentation/bloc/category_event.dart';
 import 'package:prm393_biopestcontrol/features/category/presentation/bloc/category_state.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
-import 'package:prm393_biopestcontrol/injection_container.dart' as di;
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';

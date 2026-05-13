@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/domain/entities/warehouse_inventory_entity.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// [WarehouseInventoryList] hiển thị danh sách các mặt hàng đang có trong kho.
 class WarehouseInventoryList extends StatelessWidget {

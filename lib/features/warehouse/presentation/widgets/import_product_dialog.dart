@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/domain/entities/warehouse_entity.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/presentation/bloc/warehouse_bloc.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/domain/usecases/import_product_usecase.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/features/product/domain/entities/product_entity.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/bloc/product_bloc.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/bloc/product_state.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.dart';
-import 'package:prm393_biopestcontrol/shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
-import 'package:prm393_biopestcontrol/injection_container.dart' as di;
+import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 import 'package:prm393_biopestcontrol/features/product/presentation/bloc/product_bloc.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/bloc/product_event.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';

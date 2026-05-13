@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/category_entity.dart';
-import '../../../../shared/theme/app_colors.dart';
+import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 class CategoryCard extends StatelessWidget {
   final CategoryEntity category;
