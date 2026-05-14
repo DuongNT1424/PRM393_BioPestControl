@@ -15,6 +15,7 @@ import '../widgets/auth_header.dart';
 import '../widgets/google_auth_button.dart';
 import '../widgets/auth_background_decoration.dart';
 import 'register_page.dart';
+import 'package:prm393_biopestcontrol/app/app.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,7 +41,11 @@ class _LoginPageState extends State<LoginPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đăng nhập thành công')),
             );
-            // Có thể thêm điều hướng sang trang chủ tại đây
+            // Ép điều hướng về AuthWrapper để nó tự động chuyển sang Dashboard
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const AuthWrapper()),
+              (route) => false,
+            );
           } else if (state is AuthError) {
             // Hiển thị lỗi nếu quá trình đăng nhập thất bại
             ScaffoldMessenger.of(context).showSnackBar(
