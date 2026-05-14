@@ -8,6 +8,8 @@ import 'package:prm393_biopestcontrol/features/category/presentation/bloc/catego
 import 'package:prm393_biopestcontrol/features/category/presentation/widgets/category_card.dart';
 import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
+import 'package:prm393_biopestcontrol/features/auth/presentation/pages/login_page.dart';
+import 'package:prm393_biopestcontrol/app/app.dart';
 
 import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
@@ -40,8 +42,11 @@ class CategoryPage extends StatelessWidget {
             user: user,
             isAdmin: isAdmin,
             onLogout: () {
-              Navigator.pop(context);
               context.read<AuthBloc>().add(LogoutRequested());
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                (route) => false,
+              );
             },
           ),
         body: BlocConsumer<CategoryBloc, CategoryState>(

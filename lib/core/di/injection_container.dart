@@ -45,6 +45,17 @@ import 'package:prm393_biopestcontrol/features/warehouse/data/repositories/wareh
 import 'package:prm393_biopestcontrol/features/warehouse/data/datasources/warehouse_local_data_source.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/presentation/bloc/warehouse_bloc.dart';
 
+import 'package:prm393_biopestcontrol/features/staff/domain/repositories/staff_repository.dart';
+import 'package:prm393_biopestcontrol/features/staff/domain/usecases/get_staffs_usecase.dart';
+import 'package:prm393_biopestcontrol/features/staff/domain/usecases/add_staff_usecase.dart';
+import 'package:prm393_biopestcontrol/features/staff/domain/usecases/update_staff_usecase.dart';
+import 'package:prm393_biopestcontrol/features/staff/domain/usecases/delete_staff_usecase.dart';
+import 'package:prm393_biopestcontrol/features/staff/domain/usecases/search_staffs_usecase.dart';
+import 'package:prm393_biopestcontrol/features/staff/domain/usecases/send_password_reset_usecase.dart';
+import 'package:prm393_biopestcontrol/features/staff/data/repositories/staff_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/staff/data/datasources/staff_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/staff/presentation/bloc/staff_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -82,6 +93,14 @@ Future<void> init() async {
         searchInventoryUseCase: sl(),
         importProductUseCase: sl(),
       ));
+  sl.registerFactory(() => StaffBloc(
+        getStaffsUseCase: sl(),
+        addStaffUseCase: sl(),
+        updateStaffUseCase: sl(),
+        deleteStaffUseCase: sl(),
+        searchStaffsUseCase: sl(),
+        sendPasswordResetUseCase: sl(),
+      ));
 
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
@@ -98,6 +117,12 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetWarehousesUseCase(sl()));
   sl.registerLazySingleton(() => SearchWarehouseInventoryUseCase(sl()));
   sl.registerLazySingleton(() => ImportProductUseCase(sl()));
+  sl.registerLazySingleton(() => GetStaffsUseCase(sl()));
+  sl.registerLazySingleton(() => AddStaffUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateStaffUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteStaffUseCase(sl()));
+  sl.registerLazySingleton(() => SearchStaffsUseCase(sl()));
+  sl.registerLazySingleton(() => SendPasswordResetUseCase(sl()));
 
   sl.registerLazySingleton<StatisticsRepository>(
     () => StatisticsRepositoryImpl(localDataSource: sl()),
@@ -110,6 +135,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<WarehouseRepository>(
     () => WarehouseRepositoryImpl(localDataSource: sl()),
+  );
+  sl.registerLazySingleton<StaffRepository>(
+    () => StaffRepositoryImpl(remoteDataSource: sl()),
   );
 
   // Data sources
@@ -124,6 +152,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<WarehouseLocalDataSource>(
     () => WarehouseLocalDataSourceImpl(dbHelper: sl()),
+  );
+  sl.registerLazySingleton<StaffRemoteDataSource>(
+    () => StaffRemoteDataSourceImpl(
+      firestore: sl<FirebaseFirestore>(),
+      firebaseAuth: sl<FirebaseAuth>(),
+    ),
   );
 
   // Use cases

@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/pages/management_page.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_bloc.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_event.dart';
+import 'package:prm393_biopestcontrol/features/staff/presentation/pages/staff_page.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
@@ -174,7 +175,19 @@ class ManagementDrawer extends StatelessWidget {
                     context,
                     icon: Icons.badge_outlined,
                     title: 'Staff',
-                    onTap: () {},
+                    selected: currentRoute == '/staff',
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (currentRoute != '/staff') {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => StaffPage(user: user),
+                            settings: const RouteSettings(name: '/staff'),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 _buildMenuItem(
                   context,

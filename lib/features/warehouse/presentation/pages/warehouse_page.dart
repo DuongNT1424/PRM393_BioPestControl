@@ -8,6 +8,8 @@ import 'package:prm393_biopestcontrol/features/product/presentation/bloc/product
 import 'package:prm393_biopestcontrol/features/product/presentation/bloc/product_event.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/pages/login_page.dart';
+import 'package:prm393_biopestcontrol/app/app.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/presentation/bloc/warehouse_bloc.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/presentation/widgets/warehouse_inventory_list.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/presentation/widgets/import_product_dialog.dart';
@@ -47,8 +49,11 @@ class WarehousePage extends StatelessWidget {
             user: user,
             isAdmin: isAdmin,
             onLogout: () {
-              Navigator.pop(context);
               context.read<AuthBloc>().add(LogoutRequested());
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                (route) => false,
+              );
             },
           ),
           body: BlocConsumer<WarehouseBloc, WarehouseState>(

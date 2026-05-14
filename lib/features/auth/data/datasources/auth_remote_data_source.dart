@@ -7,7 +7,7 @@ import '../models/auth_model.dart';
 /// Định nghĩa các tương tác trực tiếp với Firebase Auth và Google Sign-In.
 abstract class AuthRemoteDataSource {
   Future<AuthModel> login(String email, String password);
-  Future<AuthModel> register(String email, String password, String name);
+  Future<AuthModel> register(String email, String password, String name, [String phone = '']);
   Future<AuthModel> loginWithGoogle();
   Future<void> logout();
   Future<AuthModel?> getCurrentUser();
@@ -50,7 +50,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   // Đăng ký tài khoản và cập nhật tên hiển thị
-  Future<AuthModel> register(String email, String password, String name) async {
+  Future<AuthModel> register(String email, String password, String name, [String phone = '']) async {
     try {
       final response = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,

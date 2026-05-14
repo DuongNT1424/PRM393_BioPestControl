@@ -19,6 +19,8 @@ import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/pages/login_page.dart';
+import 'package:prm393_biopestcontrol/app/app.dart';
 import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
 
 class ProductPage extends StatefulWidget {
@@ -107,8 +109,11 @@ class _ProductPageState extends State<ProductPage> {
             user: widget.user,
             isAdmin: isAdmin,
             onLogout: () {
-              Navigator.pop(context);
               context.read<AuthBloc>().add(LogoutRequested());
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                (route) => false,
+              );
             },
           ),
           body: BlocConsumer<ProductBloc, ProductState>(

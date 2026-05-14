@@ -17,6 +17,7 @@ abstract class AuthRepository {
     required String email,
     required String password,
     required String name,
+    String phone = '',
   });
 
   // Đăng nhập bằng tài khoản Google
