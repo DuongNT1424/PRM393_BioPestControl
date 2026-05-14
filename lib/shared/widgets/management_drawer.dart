@@ -9,6 +9,7 @@ import 'package:prm393_biopestcontrol/features/statistics/presentation/pages/man
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_bloc.dart';
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_event.dart';
 import 'package:prm393_biopestcontrol/features/staff/presentation/pages/staff_page.dart';
+import 'package:prm393_biopestcontrol/features/customer/presentation/pages/customer_management_page.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
@@ -193,7 +194,19 @@ class ManagementDrawer extends StatelessWidget {
                   context,
                   icon: Icons.people_alt_outlined,
                   title: 'Customer',
-                  onTap: () {},
+                  selected: currentRoute == '/customers',
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (currentRoute != '/customers') {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CustomerManagementPage(user: user),
+                          settings: const RouteSettings(name: '/customers'),
+                        ),
+                      );
+                    }
+                  },
                 ),
               ],
             ),

@@ -56,6 +56,18 @@ import 'package:prm393_biopestcontrol/features/staff/data/repositories/staff_rep
 import 'package:prm393_biopestcontrol/features/staff/data/datasources/staff_remote_data_source.dart';
 import 'package:prm393_biopestcontrol/features/staff/presentation/bloc/staff_bloc.dart';
 
+import 'package:prm393_biopestcontrol/features/customer/domain/repositories/customer_repository.dart';
+import 'package:prm393_biopestcontrol/features/customer/domain/usecases/get_customers_usecase.dart';
+import 'package:prm393_biopestcontrol/features/customer/domain/usecases/get_customer_detail_usecase.dart';
+import 'package:prm393_biopestcontrol/features/customer/domain/usecases/update_customer_usecase.dart';
+import 'package:prm393_biopestcontrol/features/customer/domain/usecases/lock_customer_usecase.dart';
+import 'package:prm393_biopestcontrol/features/customer/domain/usecases/unlock_customer_usecase.dart';
+import 'package:prm393_biopestcontrol/features/customer/domain/usecases/search_customers_usecase.dart';
+import 'package:prm393_biopestcontrol/features/customer/domain/usecases/filter_customers_usecase.dart';
+import 'package:prm393_biopestcontrol/features/customer/data/repositories/customer_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/customer/data/datasources/customer_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/customer/presentation/bloc/customer_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -102,6 +114,17 @@ Future<void> init() async {
         sendPasswordResetUseCase: sl(),
       ));
 
+  // --- Tính năng: Quản lý khách hàng (Customer Management) ---
+  sl.registerFactory<CustomerBloc>(() => CustomerBloc(
+        getCustomersUseCase: sl(),
+        getCustomerDetailUseCase: sl(),
+        updateCustomerUseCase: sl(),
+        lockCustomerUseCase: sl(),
+        unlockCustomerUseCase: sl(),
+        searchCustomersUseCase: sl(),
+        filterCustomersUseCase: sl(),
+      ));
+
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductUseCase(sl()));
@@ -123,6 +146,13 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeleteStaffUseCase(sl()));
   sl.registerLazySingleton(() => SearchStaffsUseCase(sl()));
   sl.registerLazySingleton(() => SendPasswordResetUseCase(sl()));
+  sl.registerLazySingleton(() => GetCustomersUseCase(sl()));
+  sl.registerLazySingleton(() => GetCustomerDetailUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateCustomerUseCase(sl()));
+  sl.registerLazySingleton(() => LockCustomerUseCase(sl()));
+  sl.registerLazySingleton(() => UnlockCustomerUseCase(sl()));
+  sl.registerLazySingleton(() => SearchCustomersUseCase(sl()));
+  sl.registerLazySingleton(() => FilterCustomersUseCase(sl()));
 
   sl.registerLazySingleton<StatisticsRepository>(
     () => StatisticsRepositoryImpl(localDataSource: sl()),
@@ -138,6 +168,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<StaffRepository>(
     () => StaffRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<CustomerRepository>(
+    () => CustomerRepositoryImpl(remoteDataSource: sl()),
   );
 
   // Data sources
@@ -158,6 +191,9 @@ Future<void> init() async {
       firestore: sl<FirebaseFirestore>(),
       firebaseAuth: sl<FirebaseAuth>(),
     ),
+  );
+  sl.registerLazySingleton<CustomerRemoteDataSource>(
+    () => CustomerRemoteDataSourceImpl(firestore: sl()),
   );
 
   // Use cases
