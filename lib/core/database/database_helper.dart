@@ -13,7 +13,7 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('biopest_v5.db'); // v4 to trigger re-creation with all 160 products
+    _database = await _initDB('biopest_v7.db'); // v7 to include multi-product discounts
     return _database!;
   }
 
@@ -104,6 +104,31 @@ class DatabaseHelper {
         PRIMARY KEY (warehouse_id, product_id),
         FOREIGN KEY (warehouse_id) REFERENCES warehouses (id),
         FOREIGN KEY (product_id) REFERENCES products (id)
+      )
+    ''');
+
+    // 7. Bảng Giảm giá (Discounts) - Đã cập nhật hỗ trợ đa sản phẩm
+    await db.execute('''
+      CREATE TABLE discounts (
+        id $idType,
+        name $textType,
+        description $textNullable,
+        discount_percent $doubleType,
+        start_date $textType,
+        end_date $textType,
+        is_all_products INTEGER NOT NULL DEFAULT 0,
+        is_active $boolType
+      )
+    ''');
+
+    // 8. Bảng liên kết Giảm giá - Sản phẩm (n-n)
+    await db.execute('''
+      CREATE TABLE discount_products (
+        discount_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        PRIMARY KEY (discount_id, product_id),
+        FOREIGN KEY (discount_id) REFERENCES discounts (id) ON DELETE CASCADE,
+        FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
       )
     ''');
 
