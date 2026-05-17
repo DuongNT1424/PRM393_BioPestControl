@@ -68,6 +68,17 @@ import 'package:prm393_biopestcontrol/features/customer/data/repositories/custom
 import 'package:prm393_biopestcontrol/features/customer/data/datasources/customer_remote_data_source.dart';
 import 'package:prm393_biopestcontrol/features/customer/presentation/bloc/customer_bloc.dart';
 
+import 'package:prm393_biopestcontrol/features/discount/domain/repositories/discount_repository.dart';
+import 'package:prm393_biopestcontrol/features/discount/domain/usecases/get_discounts_usecase.dart';
+import 'package:prm393_biopestcontrol/features/discount/domain/usecases/add_discount_usecase.dart';
+import 'package:prm393_biopestcontrol/features/discount/domain/usecases/update_discount_usecase.dart';
+import 'package:prm393_biopestcontrol/features/discount/domain/usecases/delete_discount_usecase.dart';
+import 'package:prm393_biopestcontrol/features/discount/domain/usecases/search_discounts_usecase.dart';
+import 'package:prm393_biopestcontrol/features/discount/domain/usecases/filter_discounts_usecase.dart';
+import 'package:prm393_biopestcontrol/features/discount/data/repositories/discount_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/discount/data/datasources/discount_local_data_source.dart';
+import 'package:prm393_biopestcontrol/features/discount/presentation/bloc/discount_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -124,6 +135,14 @@ Future<void> init() async {
         searchCustomersUseCase: sl(),
         filterCustomersUseCase: sl(),
       ));
+  sl.registerFactory(() => DiscountBloc(
+        getDiscountsUseCase: sl(),
+        addDiscountUseCase: sl(),
+        updateDiscountUseCase: sl(),
+        deleteDiscountUseCase: sl(),
+        searchDiscountsUseCase: sl(),
+        filterDiscountsUseCase: sl(),
+      ));
 
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
@@ -153,6 +172,12 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UnlockCustomerUseCase(sl()));
   sl.registerLazySingleton(() => SearchCustomersUseCase(sl()));
   sl.registerLazySingleton(() => FilterCustomersUseCase(sl()));
+  sl.registerLazySingleton(() => GetDiscountsUseCase(sl()));
+  sl.registerLazySingleton(() => AddDiscountUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateDiscountUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteDiscountUseCase(sl()));
+  sl.registerLazySingleton(() => SearchDiscountsUseCase(sl()));
+  sl.registerLazySingleton(() => FilterDiscountsUseCase(sl()));
 
   sl.registerLazySingleton<StatisticsRepository>(
     () => StatisticsRepositoryImpl(localDataSource: sl()),
@@ -171,6 +196,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CustomerRepository>(
     () => CustomerRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<DiscountRepository>(
+    () => DiscountRepositoryImpl(localDataSource: sl()),
   );
 
   // Data sources
@@ -194,6 +222,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CustomerRemoteDataSource>(
     () => CustomerRemoteDataSourceImpl(firestore: sl()),
+  );
+  sl.registerLazySingleton<DiscountLocalDataSource>(
+    () => DiscountLocalDataSourceImpl(dbHelper: sl()),
   );
 
   // Use cases
