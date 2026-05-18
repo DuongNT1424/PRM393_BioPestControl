@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/customer_entity.dart';
 import '../../domain/repositories/customer_repository.dart';
 import '../datasources/customer_remote_data_source.dart';
@@ -11,44 +13,73 @@ class CustomerRepositoryImpl implements CustomerRepository {
   CustomerRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<CustomerEntity>> getCustomers() async {
-    final models = await remoteDataSource.getCustomers();
-    // Chuyển đổi từ danh sách Model sang danh sách Entity
-    return models.map((model) => model.toEntity()).toList();
+  Future<Either<Failure, List<CustomerEntity>>> getCustomers() async {
+    try {
+      final models = await remoteDataSource.getCustomers();
+      return Right(models.map((model) => model.toEntity()).toList());
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 
   @override
-  Future<CustomerEntity> getCustomerById(String id) async {
-    final model = await remoteDataSource.getCustomerById(id);
-    return model.toEntity();
+  Future<Either<Failure, CustomerEntity>> getCustomerById(String id) async {
+    try {
+      final model = await remoteDataSource.getCustomerById(id);
+      return Right(model.toEntity());
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 
   @override
-  Future<void> updateCustomer(CustomerEntity customer) async {
-    // Chuyển Entity sang Model để phù hợp với Data Source
-    final model = CustomerModel.fromEntity(customer);
-    await remoteDataSource.updateCustomer(model);
+  Future<Either<Failure, void>> updateCustomer(CustomerEntity customer) async {
+    try {
+      final model = CustomerModel.fromEntity(customer);
+      await remoteDataSource.updateCustomer(model);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 
   @override
-  Future<void> lockCustomer(String id) async {
-    await remoteDataSource.setCustomerLockStatus(id, true);
+  Future<Either<Failure, void>> lockCustomer(String id) async {
+    try {
+      await remoteDataSource.setCustomerLockStatus(id, true);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 
   @override
-  Future<void> unlockCustomer(String id) async {
-    await remoteDataSource.setCustomerLockStatus(id, false);
+  Future<Either<Failure, void>> unlockCustomer(String id) async {
+    try {
+      await remoteDataSource.setCustomerLockStatus(id, false);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 
   @override
-  Future<List<CustomerEntity>> searchCustomers(String query) async {
-    final models = await remoteDataSource.searchCustomers(query);
-    return models.map((model) => model.toEntity()).toList();
+  Future<Either<Failure, List<CustomerEntity>>> searchCustomers(String query) async {
+    try {
+      final models = await remoteDataSource.searchCustomers(query);
+      return Right(models.map((model) => model.toEntity()).toList());
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 
   @override
-  Future<List<CustomerEntity>> filterCustomers({bool? isLocked}) async {
-    final models = await remoteDataSource.filterCustomers(isLocked: isLocked);
-    return models.map((model) => model.toEntity()).toList();
+  Future<Either<Failure, List<CustomerEntity>>> filterCustomers({bool? isLocked}) async {
+    try {
+      final models = await remoteDataSource.filterCustomers(isLocked: isLocked);
+      return Right(models.map((model) => model.toEntity()).toList());
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 }

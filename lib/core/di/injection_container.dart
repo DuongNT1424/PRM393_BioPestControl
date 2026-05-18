@@ -78,6 +78,15 @@ import 'package:prm393_biopestcontrol/features/discount/domain/usecases/filter_d
 import 'package:prm393_biopestcontrol/features/discount/data/repositories/discount_repository_impl.dart';
 import 'package:prm393_biopestcontrol/features/discount/data/datasources/discount_local_data_source.dart';
 import 'package:prm393_biopestcontrol/features/discount/presentation/bloc/discount_bloc.dart';
+import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:prm393_biopestcontrol/features/cart/domain/repositories/cart_repository.dart';
+import 'package:prm393_biopestcontrol/features/cart/domain/usecases/get_cart_usecase.dart';
+import 'package:prm393_biopestcontrol/features/cart/domain/usecases/add_to_cart_usecase.dart';
+import 'package:prm393_biopestcontrol/features/cart/domain/usecases/remove_from_cart_usecase.dart';
+import 'package:prm393_biopestcontrol/features/cart/domain/usecases/update_cart_quantity_usecase.dart';
+import 'package:prm393_biopestcontrol/features/cart/domain/usecases/clear_cart_usecase.dart';
+import 'package:prm393_biopestcontrol/features/cart/data/repositories/cart_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/cart/data/datasources/cart_local_data_source.dart';
 
 final sl = GetIt.instance;
 
@@ -144,7 +153,20 @@ Future<void> init() async {
         filterDiscountsUseCase: sl(),
       ));
 
+  sl.registerFactory(() => CartBloc(
+        getCartUseCase: sl(),
+        addToCartUseCase: sl(),
+        removeFromCartUseCase: sl(),
+        updateCartQuantityUseCase: sl(),
+        clearCartUseCase: sl(),
+      ));
+
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
+  sl.registerLazySingleton(() => GetCartUseCase(sl()));
+  sl.registerLazySingleton(() => AddToCartUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFromCartUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateCartQuantityUseCase(sl()));
+  sl.registerLazySingleton(() => ClearCartUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductUseCase(sl()));
   sl.registerLazySingleton(() => SearchProductsUseCase(sl()));
@@ -200,6 +222,9 @@ Future<void> init() async {
   sl.registerLazySingleton<DiscountRepository>(
     () => DiscountRepositoryImpl(localDataSource: sl()),
   );
+  sl.registerLazySingleton<CartRepository>(
+    () => CartRepositoryImpl(localDataSource: sl()),
+  );
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
@@ -225,6 +250,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<DiscountLocalDataSource>(
     () => DiscountLocalDataSourceImpl(dbHelper: sl()),
+  );
+  sl.registerLazySingleton<CartLocalDataSource>(
+    () => CartLocalDataSourceImpl(),
   );
 
   // Use cases

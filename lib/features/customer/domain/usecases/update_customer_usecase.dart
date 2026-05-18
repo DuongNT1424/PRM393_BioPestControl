@@ -1,12 +1,15 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../entities/customer_entity.dart';
 import '../repositories/customer_repository.dart';
 
-class UpdateCustomerUseCase {
+class UpdateCustomerUseCase implements UseCase<void, CustomerEntity> {
   final CustomerRepository repository;
 
   UpdateCustomerUseCase(this.repository);
 
-  Future<void> call(CustomerEntity customer) async {
+  Future<Either<Failure, void>> call(CustomerEntity customer) async {
     return await repository.updateCustomer(customer);
   }
 }

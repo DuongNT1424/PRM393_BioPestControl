@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/get_discounts_usecase.dart';
 import '../../domain/usecases/add_discount_usecase.dart';
 import '../../domain/usecases/update_discount_usecase.dart';
@@ -35,67 +36,66 @@ class DiscountBloc extends Bloc<DiscountEvent, DiscountState> {
     on<DeleteDiscount>(_onDeleteDiscount);
   }
 
-  /// Xử lý tải danh sách giảm giá
   Future<void> _onLoadDiscounts(LoadDiscounts event, Emitter<DiscountState> emit) async {
     emit(DiscountLoading());
-    try {
-      final discounts = await getDiscountsUseCase();
-      emit(DiscountsLoaded(discounts));
-    } catch (e) {
-      emit(DiscountError(e.toString()));
-    }
+    final result = await getDiscountsUseCase(NoParams());
+    result.fold(
+      (failure) => emit(DiscountError(failure.message)),
+      (discounts) => emit(DiscountsLoaded(discounts)),
+    );
   }
 
   Future<void> _onSearchDiscounts(SearchDiscounts event, Emitter<DiscountState> emit) async {
     emit(DiscountLoading());
-    try {
-      final discounts = await searchDiscountsUseCase(event.query);
-      emit(DiscountsLoaded(discounts));
-    } catch (e) {
-      emit(DiscountError(e.toString()));
-    }
+    final result = await searchDiscountsUseCase(event.query);
+    result.fold(
+      (failure) => emit(DiscountError(failure.message)),
+      (discounts) => emit(DiscountsLoaded(discounts)),
+    );
   }
 
   Future<void> _onFilterDiscounts(FilterDiscounts event, Emitter<DiscountState> emit) async {
     emit(DiscountLoading());
-    try {
-      final discounts = await filterDiscountsUseCase(isActive: event.isActive);
-      emit(DiscountsLoaded(discounts));
-    } catch (e) {
-      emit(DiscountError(e.toString()));
-    }
+    final result = await filterDiscountsUseCase(event.isActive);
+    result.fold(
+      (failure) => emit(DiscountError(failure.message)),
+      (discounts) => emit(DiscountsLoaded(discounts)),
+    );
   }
 
   Future<void> _onAddDiscount(AddDiscount event, Emitter<DiscountState> emit) async {
     emit(DiscountLoading());
-    try {
-      await addDiscountUseCase(event.discount);
-      emit(const DiscountOperationSuccess('Discount created successfully'));
-      add(LoadDiscounts());
-    } catch (e) {
-      emit(DiscountError(e.toString()));
-    }
+    final result = await addDiscountUseCase(event.discount);
+    result.fold(
+      (failure) => emit(DiscountError(failure.message)),
+      (_) {
+        emit(const DiscountOperationSuccess('Discount created successfully'));
+        add(LoadDiscounts());
+      },
+    );
   }
 
   Future<void> _onUpdateDiscount(UpdateDiscount event, Emitter<DiscountState> emit) async {
     emit(DiscountLoading());
-    try {
-      await updateDiscountUseCase(event.discount);
-      emit(const DiscountOperationSuccess('Discount updated successfully'));
-      add(LoadDiscounts());
-    } catch (e) {
-      emit(DiscountError(e.toString()));
-    }
+    final result = await updateDiscountUseCase(event.discount);
+    result.fold(
+      (failure) => emit(DiscountError(failure.message)),
+      (_) {
+        emit(const DiscountOperationSuccess('Discount updated successfully'));
+        add(LoadDiscounts());
+      },
+    );
   }
 
   Future<void> _onDeleteDiscount(DeleteDiscount event, Emitter<DiscountState> emit) async {
     emit(DiscountLoading());
-    try {
-      await deleteDiscountUseCase(event.id);
-      emit(const DiscountOperationSuccess('Discount deleted successfully'));
-      add(LoadDiscounts());
-    } catch (e) {
-      emit(DiscountError(e.toString()));
-    }
+    final result = await deleteDiscountUseCase(event.id);
+    result.fold(
+      (failure) => emit(DiscountError(failure.message)),
+      (_) {
+        emit(const DiscountOperationSuccess('Discount deleted successfully'));
+        add(LoadDiscounts());
+      },
+    );
   }
 }
