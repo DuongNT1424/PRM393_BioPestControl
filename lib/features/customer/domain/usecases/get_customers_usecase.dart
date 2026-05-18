@@ -1,12 +1,16 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../entities/customer_entity.dart';
 import '../repositories/customer_repository.dart';
 
-class GetCustomersUseCase {
+class GetCustomersUseCase implements UseCase<List<CustomerEntity>, NoParams> {
   final CustomerRepository repository;
 
   GetCustomersUseCase(this.repository);
 
-  Future<List<CustomerEntity>> call() async {
+  @override
+  Future<Either<Failure, List<CustomerEntity>>> call(NoParams params) async {
     return await repository.getCustomers();
   }
 }

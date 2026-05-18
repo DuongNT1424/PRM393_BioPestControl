@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/get_customers_usecase.dart';
 import '../../domain/usecases/get_customer_detail_usecase.dart';
 import '../../domain/usecases/update_customer_usecase.dart';
@@ -41,74 +42,69 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   /// Xử lý sự kiện tải danh sách khách hàng
   Future<void> _onLoadCustomers(LoadCustomers event, Emitter<CustomerState> emit) async {
     emit(CustomerLoading());
-    try {
-      final customers = await getCustomersUseCase();
-      emit(CustomersLoaded(customers));
-    } catch (e) {
-      emit(CustomerError(e.toString()));
-    }
+    final result = await getCustomersUseCase(NoParams());
+    result.fold(
+      (failure) => emit(CustomerError(failure.message)),
+      (customers) => emit(CustomersLoaded(customers)),
+    );
   }
 
   /// Xử lý sự kiện tìm kiếm khách hàng theo tên/email/phone
   Future<void> _onSearchCustomers(SearchCustomers event, Emitter<CustomerState> emit) async {
     emit(CustomerLoading());
-    try {
-      final customers = await searchCustomersUseCase(event.query);
-      emit(CustomersLoaded(customers));
-    } catch (e) {
-      emit(CustomerError(e.toString()));
-    }
+    final result = await searchCustomersUseCase(event.query);
+    result.fold(
+      (failure) => emit(CustomerError(failure.message)),
+      (customers) => emit(CustomersLoaded(customers)),
+    );
   }
 
   /// Xử lý sự kiện lọc khách hàng theo trạng thái khóa/mở
   Future<void> _onFilterCustomers(FilterCustomers event, Emitter<CustomerState> emit) async {
     emit(CustomerLoading());
-    try {
-      final customers = await filterCustomersUseCase(isLocked: event.isLocked);
-      emit(CustomersLoaded(customers));
-    } catch (e) {
-      emit(CustomerError(e.toString()));
-    }
+    final result = await filterCustomersUseCase(event.isLocked);
+    result.fold(
+      (failure) => emit(CustomerError(failure.message)),
+      (customers) => emit(CustomersLoaded(customers)),
+    );
   }
 
   /// Xử lý sự kiện cập nhật thông tin khách hàng
   Future<void> _onUpdateCustomer(UpdateCustomer event, Emitter<CustomerState> emit) async {
     emit(CustomerLoading());
-    try {
-      await updateCustomerUseCase(event.customer);
-      emit(const CustomerOperationSuccess('Customer updated successfully'));
-      // Tải lại danh sách sau khi cập nhật thành công
-      add(LoadCustomers());
-    } catch (e) {
-      emit(CustomerError(e.toString()));
-    }
+    final result = await updateCustomerUseCase(event.customer);
+    result.fold(
+      (failure) => emit(CustomerError(failure.message)),
+      (_) {
+        emit(const CustomerOperationSuccess('Customer updated successfully'));
+        add(LoadCustomers());
+      },
+    );
   }
 
   /// Xử lý sự kiện khóa/mở khóa khách hàng
   Future<void> _onToggleCustomerLock(ToggleCustomerLock event, Emitter<CustomerState> emit) async {
     emit(CustomerLoading());
-    try {
-      if (event.isLocked) {
-        await lockCustomerUseCase(event.id);
-      } else {
-        await unlockCustomerUseCase(event.id);
-      }
-      emit(CustomerOperationSuccess(event.isLocked ? 'Customer locked' : 'Customer unlocked'));
-      // Tải lại danh sách sau khi thay đổi trạng thái
-      add(LoadCustomers());
-    } catch (e) {
-      emit(CustomerError(e.toString()));
-    }
+    final actionResult = event.isLocked 
+        ? await lockCustomerUseCase(event.id)
+        : await unlockCustomerUseCase(event.id);
+
+    actionResult.fold(
+      (failure) => emit(CustomerError(failure.message)),
+      (_) {
+        emit(CustomerOperationSuccess(event.isLocked ? 'Customer locked' : 'Customer unlocked'));
+        add(LoadCustomers());
+      },
+    );
   }
 
   /// Xử lý sự kiện lấy chi tiết một khách hàng
   Future<void> _onGetCustomerDetail(GetCustomerDetail event, Emitter<CustomerState> emit) async {
     emit(CustomerLoading());
-    try {
-      final customer = await getCustomerDetailUseCase(event.id);
-      emit(CustomerDetailLoaded(customer));
-    } catch (e) {
-      emit(CustomerError(e.toString()));
-    }
+    final result = await getCustomerDetailUseCase(event.id);
+    result.fold(
+      (failure) => emit(CustomerError(failure.message)),
+      (customer) => emit(CustomerDetailLoaded(customer)),
+    );
   }
 }

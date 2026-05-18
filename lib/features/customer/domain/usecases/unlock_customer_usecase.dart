@@ -1,11 +1,14 @@
+import 'package:dartz/dartz.dart';
+import '../../../../core/errors/failures.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../repositories/customer_repository.dart';
 
-class UnlockCustomerUseCase {
+class UnlockCustomerUseCase implements UseCase<void, String> {
   final CustomerRepository repository;
 
   UnlockCustomerUseCase(this.repository);
 
-  Future<void> call(String id) async {
+  Future<Either<Failure, void>> call(String id) async {
     return await repository.unlockCustomer(id);
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/entities/discount_entity.dart';
 import '../bloc/discount_bloc.dart';
 import '../bloc/discount_event.dart';
-import 'package:prm393_biopestcontrol/features/product/domain/repositories/product_repository.dart';
+import 'package:prm393_biopestcontrol/features/product/domain/usecases/get_products_usecase.dart';
 import 'package:prm393_biopestcontrol/features/product/domain/entities/product_entity.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
@@ -52,7 +52,7 @@ class _DiscountFormPageState extends State<DiscountFormPage> {
 
   Future<void> _loadProducts() async {
     try {
-      final result = await di.sl<ProductRepository>().getProducts();
+      final result = await di.sl<GetProductsUseCase>().call();
       result.fold(
         (failure) {
           setState(() => _isLoadingProducts = false);
