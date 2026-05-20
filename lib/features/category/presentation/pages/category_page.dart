@@ -43,10 +43,7 @@ class CategoryPage extends StatelessWidget {
             isAdmin: isAdmin,
             onLogout: () {
               context.read<AuthBloc>().add(LogoutRequested());
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const AuthWrapper()),
-                (route) => false,
-              );
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
           ),
         body: BlocConsumer<CategoryBloc, CategoryState>(

@@ -5,27 +5,33 @@ import 'package:prm393_biopestcontrol/features/product/presentation/pages/produc
 import 'package:prm393_biopestcontrol/features/category/presentation/pages/category_page.dart';
 import 'package:prm393_biopestcontrol/features/warehouse/presentation/pages/warehouse_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:prm393_biopestcontrol/features/statistics/presentation/pages/management_page.dart';
-import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_bloc.dart';
-import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_event.dart';
 import 'package:prm393_biopestcontrol/features/staff/presentation/pages/staff_page.dart';
 import 'package:prm393_biopestcontrol/features/customer/presentation/pages/customer_management_page.dart';
 import 'package:prm393_biopestcontrol/features/discount/presentation/pages/discount_management_page.dart';
 import 'package:prm393_biopestcontrol/features/profile/presentation/pages/profile_page.dart';
-import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
+import 'package:prm393_biopestcontrol/features/notification/presentation/pages/send_notification_page.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
-/// 
+///
 /// Chứa các liên kết điều hướng đến các tính năng như Kho hàng, Sản phẩm, Đơn hàng...
 /// Giao diện tự động điều chỉnh hiển thị các mục menu dựa trên vai trò [isAdmin].
+///
+/// QUAN TRỌNG: Chiến lược điều hướng trong drawer sử dụng hai cơ chế khác nhau:
+/// - Nếu trang hiện tại là root (isFirst == true): dùng [Navigator.push] để xếp trang mới lên trên,
+///   đảm bảo route gốc `/` chứa [AuthWrapper] không bao giờ bị xóa hay thay thế.
+/// - Nếu trang hiện tại là non-root (một sub-page): dùng [Navigator.pushReplacement] để thay thế
+///   sub-page hiện tại, giữ nguyên root ở dưới cùng của stack.
+/// Điều này ngăn lỗi [Navigator] crash do stack history rỗng và màn hình đen khi bấm back.
 class ManagementDrawer extends StatelessWidget {
   /// Thông tin người dùng để hiển thị trên Header của Drawer.
   final AuthEntity user;
-  
+
   /// Biến kiểm tra quyền Admin để hiển thị/ẩn các mục quản lý nhân sự.
   final bool isAdmin;
-  
-  /// Hàm callback xử lý đăng xuất.
+
+  /// Hàm callback xử lý đăng xuất (hiện không còn dùng trực tiếp, drawer tự xử lý).
   final VoidCallback onLogout;
 
   const ManagementDrawer({
@@ -34,6 +40,48 @@ class ManagementDrawer extends StatelessWidget {
     required this.isAdmin,
     required this.onLogout,
   });
+
+  /// Điều hướng an toàn đến một trang quản trị.
+  ///
+  /// Logic:
+  /// - Đóng drawer bằng [Navigator.pop].
+  /// - Nếu đang ở trang mục tiêu ([routeName] khớp với route hiện tại), không làm gì thêm.
+  /// - Nếu đang ở route gốc (root = `/`): dùng [Navigator.push] để xếp trang mới lên trên,
+  ///   không bao giờ xóa route gốc.
+  /// - Nếu đang ở sub-page: dùng [Navigator.pushReplacement] để hoán đổi sub-page hiện tại,
+  ///   giữ nguyên route gốc ở dưới cùng.
+  void _navigateToPage(BuildContext context, Widget targetPage, String routeName) {
+    // Đóng drawer trước
+    Navigator.pop(context);
+
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+
+    // Nếu đang ở đúng trang mục tiêu rồi thì không điều hướng nữa
+    if (currentRoute == routeName) return;
+
+    // Kiểm tra xem trang hiện tại có phải là route gốc không
+    final isRootRoute = ModalRoute.of(context)?.isFirst ?? true;
+
+    if (isRootRoute) {
+      // Đang ở root: push lên trên, giữ root an toàn
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => targetPage,
+          settings: RouteSettings(name: routeName),
+        ),
+      );
+    } else {
+      // Đang ở sub-page: hoán đổi sub-page hiện tại, giữ root nguyên
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => targetPage,
+          settings: RouteSettings(name: routeName),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,97 +123,57 @@ class ManagementDrawer extends StatelessWidget {
                   title: 'Dashboard',
                   selected: currentRoute == '/management' || currentRoute == '/',
                   onTap: () {
-                    Navigator.pop(context); // Đóng drawer
-                    if (currentRoute != '/management' && currentRoute != '/') {
-                      // Vì ManagementPage cần StatisticsBloc, chúng ta điều hướng qua AuthWrapper hoặc tái tạo lại
-                      // Tuy nhiên đơn giản nhất là pop cho đến khi về trang gốc nếu dùng pushReplacement
-                      // Hoặc dùng Navigator.pushReplacement
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MultiBlocProvider(
-                            providers: [
-                              BlocProvider(create: (context) => di.sl<StatisticsBloc>()..add(const LoadStatisticsEvent())),
-                            ],
-                            child: ManagementPage(user: user),
-                          ),
-                          settings: const RouteSettings(name: '/management'),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.person_outline,
-                  title: 'My Profile',
-                  selected: currentRoute == '/profile',
-                  onTap: () {
+                    // Đóng drawer
                     Navigator.pop(context);
-                    if (currentRoute != '/profile') {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProfilePage(user: user),
-                          settings: const RouteSettings(name: '/profile'),
-                        ),
-                      );
-                    }
+                    // Pop về route gốc - nơi AuthWrapper và ManagementPage đang sống
+                    // Đây là cách an toàn nhất để quay về Dashboard mà không tạo instance mới
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 ),
+                if (!isAdmin)
+                  _buildMenuItem(
+                    context,
+                    icon: Icons.person_outline,
+                    title: 'My Profile',
+                    selected: currentRoute == '/profile',
+                    onTap: () => _navigateToPage(
+                      context,
+                      ProfilePage(user: user),
+                      '/profile',
+                    ),
+                  ),
                 _buildMenuItem(
                   context,
                   icon: Icons.warehouse_outlined,
                   title: 'Warehouse',
                   selected: currentRoute == '/warehouse',
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (currentRoute != '/warehouse') {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => WarehousePage(user: user),
-                          settings: const RouteSettings(name: '/warehouse'),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: () => _navigateToPage(
+                    context,
+                    WarehousePage(user: user),
+                    '/warehouse',
+                  ),
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.eco,
                   title: 'Product',
                   selected: currentRoute == '/products',
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (currentRoute != '/products') {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductPage(user: user),
-                          settings: const RouteSettings(name: '/products'),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: () => _navigateToPage(
+                    context,
+                    ProductPage(user: user),
+                    '/products',
+                  ),
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.category_outlined,
                   title: 'Category',
                   selected: currentRoute == '/categories',
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (currentRoute != '/categories') {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CategoryPage(user: user),
-                          settings: const RouteSettings(name: '/categories'),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: () => _navigateToPage(
+                    context,
+                    CategoryPage(user: user),
+                    '/categories',
+                  ),
                 ),
                 _buildMenuItem(
                   context,
@@ -178,18 +186,11 @@ class ManagementDrawer extends StatelessWidget {
                   icon: Icons.sell_outlined,
                   title: 'Discount',
                   selected: currentRoute == '/discounts',
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (currentRoute != '/discounts') {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DiscountManagementPage(user: user),
-                          settings: const RouteSettings(name: '/discounts'),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: () => _navigateToPage(
+                    context,
+                    DiscountManagementPage(user: user),
+                    '/discounts',
+                  ),
                 ),
                 _buildMenuItem(
                   context,
@@ -203,42 +204,48 @@ class ManagementDrawer extends StatelessWidget {
                   title: 'Chemical Safety',
                   onTap: () {},
                 ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.notifications_active_outlined,
+                  title: 'Send Notification',
+                  selected: currentRoute == '/send_notification',
+                  onTap: () {
+                    // SendNotificationPage dùng Navigator.push (không phải pushReplacement)
+                    // vì nó là một trang modal riêng, không cùng cấp với các trang quản lý khác
+                    Navigator.pop(context); // Đóng drawer
+                    if (currentRoute != '/send_notification') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SendNotificationPage(),
+                          settings: const RouteSettings(name: '/send_notification'),
+                        ),
+                      );
+                    }
+                  },
+                ),
                 if (isAdmin)
                   _buildMenuItem(
                     context,
                     icon: Icons.badge_outlined,
                     title: 'Staff',
                     selected: currentRoute == '/staff',
-                    onTap: () {
-                      Navigator.pop(context);
-                      if (currentRoute != '/staff') {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => StaffPage(user: user),
-                            settings: const RouteSettings(name: '/staff'),
-                          ),
-                        );
-                      }
-                    },
+                    onTap: () => _navigateToPage(
+                      context,
+                      StaffPage(user: user),
+                      '/staff',
+                    ),
                   ),
                 _buildMenuItem(
                   context,
                   icon: Icons.people_alt_outlined,
                   title: 'Customer',
                   selected: currentRoute == '/customers',
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (currentRoute != '/customers') {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CustomerManagementPage(user: user),
-                          settings: const RouteSettings(name: '/customers'),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: () => _navigateToPage(
+                    context,
+                    CustomerManagementPage(user: user),
+                    '/customers',
+                  ),
                 ),
               ],
             ),
@@ -247,7 +254,15 @@ class ManagementDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
             title: const Text('Logout', style: TextStyle(color: Colors.redAccent)),
-            onTap: onLogout,
+            onTap: () {
+              // Đóng drawer trước
+              Navigator.pop(context);
+              // Gửi sự kiện đăng xuất đến AuthBloc
+              context.read<AuthBloc>().add(LogoutRequested());
+              // Pop về route gốc (AuthWrapper sẽ tự động hiển thị LoginPage khi state = Unauthenticated)
+              // Không dùng pushAndRemoveUntil vì sẽ xóa mất route gốc `/` gây crash Navigator
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
           ),
           const SizedBox(height: 20),
         ],
