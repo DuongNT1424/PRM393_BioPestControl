@@ -65,10 +65,7 @@ class _CustomerManagementPageState extends State<CustomerManagementPage> {
               isAdmin: widget.user.role == 'admin',
               onLogout: () {
                 context.read<AuthBloc>().add(LogoutRequested());
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const AuthWrapper()),
-                  (route) => false,
-                );
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
             ),
             body: Padding(

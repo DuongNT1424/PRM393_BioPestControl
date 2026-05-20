@@ -15,7 +15,7 @@ import '../widgets/register_header.dart';
 import '../widgets/register_side_decoration.dart';
 import '../widgets/auth_bento_background.dart';
 
-import 'package:prm393_biopestcontrol/app/app.dart';
+// Import AuthWrapper không còn cần thiết sau khi chuyển sang popUntil
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -43,11 +43,9 @@ class _RegisterPageState extends State<RegisterPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đăng ký thành công')),
             );
-            // Ép điều hướng về AuthWrapper để nó tự động chuyển sang Dashboard
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const AuthWrapper()),
-              (route) => false,
-            );
+            // Pop về route gốc `/` - AuthWrapper ở root sẽ tự hiển thị trang Dashboard tương ứng
+            // KHÔNG dùng pushAndRemoveUntil vì sẽ xóa route gốc gây crash Navigator
+            Navigator.of(context).popUntil((route) => route.isFirst);
           } else if (state is AuthError) {
             // Hiển thị thông báo lỗi từ server/logic
             ScaffoldMessenger.of(context).showSnackBar(

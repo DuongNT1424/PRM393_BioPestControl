@@ -16,7 +16,7 @@ import '../widgets/google_auth_button.dart';
 import '../widgets/auth_background_decoration.dart';
 import '../widgets/forgot_password_dialog.dart';
 import 'register_page.dart';
-import 'package:prm393_biopestcontrol/app/app.dart';
+// Import AuthWrapper không còn cần thiết sau khi chuyển sang popUntil
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,11 +42,9 @@ class _LoginPageState extends State<LoginPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đăng nhập thành công')),
             );
-            // Ép điều hướng về AuthWrapper để nó tự động chuyển sang Dashboard
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const AuthWrapper()),
-              (route) => false,
-            );
+            // Pop về route gốc `/` - AuthWrapper ở root sẽ tự cập nhật giao diện theo AuthBloc
+            // KHÔNG dùng pushAndRemoveUntil vì sẽ xóa route gốc gây crash Navigator
+            Navigator.of(context).popUntil((route) => route.isFirst);
           } else if (state is AuthError) {
             // Hiển thị lỗi nếu quá trình đăng nhập thất bại
             ScaffoldMessenger.of(context).showSnackBar(
