@@ -4,6 +4,7 @@ import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/login_with_google_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
+import '../../domain/usecases/forgot_password_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -16,6 +17,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginWithGoogleUseCase loginWithGoogleUseCase;
   final LogoutUseCase logoutUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
+  final ForgotPasswordUseCase forgotPasswordUseCase;
 
   AuthBloc({
     required this.loginUseCase,
@@ -23,6 +25,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.loginWithGoogleUseCase,
     required this.logoutUseCase,
     required this.getCurrentUserUseCase,
+    required this.forgotPasswordUseCase,
   }) : super(AuthInitial()) {
     // Đăng ký các trình xử lý sự kiện (Event Handlers)
     on<LoginRequested>(_onLoginRequested);
@@ -30,6 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<GoogleLoginRequested>(_onGoogleLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
+    on<ForgotPasswordRequested>(_onForgotPasswordRequested);
   }
 
   // Xử lý sự kiện đăng nhập
@@ -86,6 +90,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(Unauthenticated());
         }
       },
+    );
+  }
+
+  Future<void> _onForgotPasswordRequested(ForgotPasswordRequested event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final result = await forgotPasswordUseCase(event.email);
+    result.fold(
+      (failure) => emit(AuthError(failure.message)),
+      (_) => emit(const ForgotPasswordSuccess('Password reset email sent')),
     );
   }
 }

@@ -34,68 +34,87 @@ class CustomerDetailPage extends StatelessWidget {
             ),
           ],
         ),
-        body: BlocBuilder<CustomerBloc, CustomerState>(
-          builder: (context, state) {
-            if (state is CustomerLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is CustomerDetailLoaded) {
-              final customer = state.customer;
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: AppColors.primaryColor.withOpacity(0.1),
-                        child: Text(
-                          customer.name.substring(0, 1).toUpperCase(),
-                          style: const TextStyle(fontSize: 40, color: AppColors.primaryColor, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    _buildInfoTile(Icons.person, 'Full Name', customer.name),
-                    _buildInfoTile(Icons.email, 'Email Address', customer.email),
-                    _buildInfoTile(Icons.phone, 'Phone Number', customer.phone ?? 'Not provided'),
-                    _buildInfoTile(Icons.location_on, 'Address', customer.address ?? 'Not provided'),
-                    _buildInfoTile(
-                      customer.isLocked ? Icons.lock : Icons.lock_open,
-                      'Account Status',
-                      customer.isLocked ? 'Locked' : 'Active',
-                      valueColor: customer.isLocked ? Colors.red : Colors.green,
-                    ),
-                    if (customer.createdAt != null)
-                      _buildInfoTile(
-                        Icons.calendar_today,
-                        'Member Since',
-                        DateFormat('dd/MM/yyyy HH:mm').format(customer.createdAt!),
-                      ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          context.read<CustomerBloc>().add(ToggleCustomerLock(customer.id, !customer.isLocked));
-                        },
-                        icon: Icon(customer.isLocked ? Icons.lock_open : Icons.lock),
-                        label: Text(customer.isLocked ? 'Unlock Customer' : 'Lock Customer'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: customer.isLocked ? Colors.green : Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+        body: BlocListener<CustomerBloc, CustomerState>(
+          listener: (context, state) {
+            if (state is CustomerOperationSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message), backgroundColor: Colors.green),
               );
-            } else if (state is CustomerError) {
-              return Center(child: Text(state.message));
+              context.read<CustomerBloc>().add(GetCustomerDetail(customerId));
             }
-            return const SizedBox.shrink();
+            if (state is CustomerError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              );
+            }
           },
+          child: BlocBuilder<CustomerBloc, CustomerState>(
+            buildWhen: (previous, current) =>
+                current is CustomerLoading ||
+                current is CustomerDetailLoaded ||
+                current is CustomerError,
+            builder: (context, state) {
+              if (state is CustomerLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is CustomerDetailLoaded) {
+                final customer = state.customer;
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                          child: Text(
+                            customer.name.substring(0, 1).toUpperCase(),
+                            style: const TextStyle(fontSize: 40, color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      _buildInfoTile(Icons.person, 'Full Name', customer.name),
+                      _buildInfoTile(Icons.email, 'Email Address', customer.email),
+                      _buildInfoTile(Icons.phone, 'Phone Number', customer.phone ?? 'Not provided'),
+                      _buildInfoTile(Icons.location_on, 'Address', customer.address ?? 'Not provided'),
+                      _buildInfoTile(
+                        customer.isLocked ? Icons.lock : Icons.lock_open,
+                        'Account Status',
+                        customer.isLocked ? 'Locked' : 'Active',
+                        valueColor: customer.isLocked ? Colors.red : Colors.green,
+                      ),
+                      if (customer.createdAt != null)
+                        _buildInfoTile(
+                          Icons.calendar_today,
+                          'Member Since',
+                          DateFormat('dd/MM/yyyy HH:mm').format(customer.createdAt!),
+                        ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            context.read<CustomerBloc>().add(ToggleCustomerLock(customer.id, !customer.isLocked));
+                          },
+                          icon: Icon(customer.isLocked ? Icons.lock_open : Icons.lock),
+                          label: Text(customer.isLocked ? 'Unlock Customer' : 'Lock Customer'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: customer.isLocked ? Colors.green : Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (state is CustomerError) {
+                return Center(child: Text(state.message));
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ),
     );
@@ -142,7 +161,6 @@ class CustomerDetailPage extends StatelessWidget {
 
     if (result != null) {
       context.read<CustomerBloc>().add(UpdateCustomer(result as CustomerEntity));
-      context.read<CustomerBloc>().add(GetCustomerDetail(customerId));
     }
   }
 }

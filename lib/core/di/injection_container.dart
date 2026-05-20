@@ -10,6 +10,13 @@ import 'package:prm393_biopestcontrol/features/auth/domain/usecases/login_usecas
 import 'package:prm393_biopestcontrol/features/auth/domain/usecases/login_with_google_usecase.dart';
 import 'package:prm393_biopestcontrol/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:prm393_biopestcontrol/features/auth/domain/usecases/register_usecase.dart';
+import 'package:prm393_biopestcontrol/features/auth/domain/usecases/forgot_password_usecase.dart';
+import 'package:prm393_biopestcontrol/features/profile/domain/repositories/profile_repository.dart';
+import 'package:prm393_biopestcontrol/features/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:prm393_biopestcontrol/features/profile/domain/usecases/change_password_usecase.dart';
+import 'package:prm393_biopestcontrol/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/profile/data/datasources/profile_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:prm393_biopestcontrol/features/statistics/data/repositories/statistics_repository_impl.dart';
 import 'package:prm393_biopestcontrol/features/statistics/domain/repositories/statistics_repository.dart';
@@ -100,6 +107,14 @@ Future<void> init() async {
       loginWithGoogleUseCase: sl(),
       logoutUseCase: sl(),
       getCurrentUserUseCase: sl(),
+      forgotPasswordUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => ProfileBloc(
+      updateProfileUseCase: sl(),
+      changePasswordUseCase: sl(),
     ),
   );
 
@@ -261,10 +276,16 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LoginWithGoogleUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
+  sl.registerLazySingleton(() => ForgotPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+  sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(remoteDataSource: sl()),
   );
 
   // Data sources
@@ -273,6 +294,12 @@ Future<void> init() async {
       firebaseAuth: sl(),
       firestore: sl(),
       googleSignIn: sl(),
+    ),
+  );
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(
+      firebaseAuth: sl(),
+      firestore: sl(),
     ),
   );
 

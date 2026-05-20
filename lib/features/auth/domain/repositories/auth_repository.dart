@@ -28,4 +28,7 @@ abstract class AuthRepository {
 
   // Kiểm tra trạng thái đăng nhập hiện tại và lấy thông tin người dùng
   Future<Either<Failure, AuthEntity?>> getCurrentUser();
+
+  // Gửi email khôi phục mật khẩu
+  Future<Either<Failure, void>> forgotPassword(String email);
 }
