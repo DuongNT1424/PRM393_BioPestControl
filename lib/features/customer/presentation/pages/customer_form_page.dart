@@ -106,13 +106,13 @@ class _CustomerFormPageState extends State<CustomerFormPage> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       final updatedCustomer = CustomerEntity(
-        id: widget.customer!.id,
-        name: _nameController.text,
-        email: widget.customer!.email,
-        phone: _phoneController.text,
-        address: _addressController.text,
-        isLocked: widget.customer!.isLocked,
-        createdAt: widget.customer!.createdAt,
+        id: widget.customer?.id ?? '',
+        name: _nameController.text.trim(),
+        email: widget.customer?.email ?? '',
+        phone: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
+        isLocked: widget.customer?.isLocked ?? false,
+        createdAt: widget.customer?.createdAt,
       );
       Navigator.pop(context, updatedCustomer);
     }

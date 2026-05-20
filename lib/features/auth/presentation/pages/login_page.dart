@@ -14,6 +14,7 @@ import 'package:prm393_biopestcontrol/shared/widgets/custom_button.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/google_auth_button.dart';
 import '../widgets/auth_background_decoration.dart';
+import '../widgets/forgot_password_dialog.dart';
 import 'register_page.dart';
 import 'package:prm393_biopestcontrol/app/app.dart';
 
@@ -51,6 +52,15 @@ class _LoginPageState extends State<LoginPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
+          } else if (state is ForgotPasswordSuccess) {
+            // Hiển thị thông báo khi gửi email khôi phục thành công
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.of(context).pop(); // Đóng dialog nếu đang mở
           }
         },
         builder: (context, state) {
@@ -123,7 +133,12 @@ class _LoginPageState extends State<LoginPage> {
                                         obscureText: true,
                                         trailing: GestureDetector(
                                           onTap: () {
-                                            // Xử lý logic quên mật khẩu
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => ForgotPasswordDialog(
+                                                initialEmail: _emailController.text,
+                                              ),
+                                            );
                                           },
                                           child: Text(
                                             'Quên mật khẩu?',

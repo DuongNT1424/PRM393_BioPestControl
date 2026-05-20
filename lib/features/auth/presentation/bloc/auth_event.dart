@@ -44,5 +44,14 @@ class GoogleLoginRequested extends AuthEvent {}
 /// Sự kiện yêu cầu đăng xuất
 class LogoutRequested extends AuthEvent {}
 
+class ForgotPasswordRequested extends AuthEvent {
+  final String email;
+
+  const ForgotPasswordRequested(this.email);
+
+  @override
+  List<Object> get props => [email];
+}
+
 /// Sự kiện kiểm tra trạng thái đăng nhập hiện tại khi khởi động app
 class AuthCheckRequested extends AuthEvent {}

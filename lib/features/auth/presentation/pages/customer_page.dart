@@ -19,6 +19,7 @@ import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_event
 import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_state.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/pages/customer_product_detail_page.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/pages/customer_all_products_page.dart';
+import 'package:prm393_biopestcontrol/features/profile/presentation/pages/profile_page.dart';
 
 class CustomerPage extends StatefulWidget {
   final AuthEntity user;
@@ -525,34 +526,52 @@ class _CustomerPageState extends State<CustomerPage> {
         children: [
           const Text('Tài khoản của tôi', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 32),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: AppColors.primaryColor.withOpacity(0.1),
-                child: Text(
-                  widget.user.name?.isNotEmpty == true ? widget.user.name![0].toUpperCase() : 'C',
-                  style: const TextStyle(fontSize: 24, color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProfilePage(user: widget.user)),
+              );
+            },
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                  child: Text(
+                    widget.user.name?.isNotEmpty == true ? widget.user.name![0].toUpperCase() : 'C',
+                    style: const TextStyle(fontSize: 24, color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.user.name ?? 'Khách hàng',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.user.email ?? '',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ],
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.user.name ?? 'Khách hàng',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      widget.user.email ?? '',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 40),
+          _buildProfileMenuItem(
+            Icons.person_outline,
+            'Thông tin cá nhân',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProfilePage(user: widget.user)),
+              );
+            },
+          ),
           _buildProfileMenuItem(Icons.history, 'Lịch sử đơn hàng'),
           _buildProfileMenuItem(Icons.location_on_outlined, 'Địa chỉ giao hàng'),
           _buildProfileMenuItem(Icons.payment, 'Phương thức thanh toán'),
@@ -571,13 +590,13 @@ class _CustomerPageState extends State<CustomerPage> {
     );
   }
 
-  Widget _buildProfileMenuItem(IconData icon, String title) {
+  Widget _buildProfileMenuItem(IconData icon, String title, {VoidCallback? onTap}) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon, color: Colors.grey[700]),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       trailing: Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey[400]),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

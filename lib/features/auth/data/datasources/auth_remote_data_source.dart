@@ -11,6 +11,7 @@ abstract class AuthRemoteDataSource {
   Future<AuthModel> loginWithGoogle();
   Future<void> logout();
   Future<AuthModel?> getCurrentUser();
+  Future<void> forgotPassword(String email);
 }
 
 /// Triển khai thực tế các phương thức xác thực sử dụng Firebase SDK.
@@ -138,5 +139,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return AuthModel.fromFirebase(user, role: role);
     }
     return null;
+  }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    try {
+      await firebaseAuth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 }
