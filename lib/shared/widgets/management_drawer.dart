@@ -200,9 +200,23 @@ class ManagementDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
-                  icon: Icons.security_outlined,
-                  title: 'Chemical Safety',
-                  onTap: () {},
+                  icon: Icons.notifications_active_outlined,
+                  title: 'Send Notification',
+                  selected: currentRoute == '/send_notification',
+                  onTap: () {
+                    // SendNotificationPage dùng Navigator.push (không phải pushReplacement)
+                    // vì nó là một trang modal riêng, không cùng cấp với các trang quản lý khác
+                    Navigator.pop(context); // Đóng drawer
+                    if (currentRoute != '/send_notification') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SendNotificationPage(),
+                          settings: const RouteSettings(name: '/send_notification'),
+                        ),
+                      );
+                    }
+                  },
                 ),
                 _buildMenuItem(
                   context,

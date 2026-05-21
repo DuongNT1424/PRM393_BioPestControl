@@ -205,6 +205,15 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RemoveFromCartUseCase(sl()));
   sl.registerLazySingleton(() => UpdateCartQuantityUseCase(sl()));
   sl.registerLazySingleton(() => ClearCartUseCase(sl()));
+
+  // News Use Cases
+  sl.registerLazySingleton(() => GetNewsListUseCase(sl()));
+  sl.registerLazySingleton(() => GetNewsByIdUseCase(sl()));
+  sl.registerLazySingleton(() => SearchNewsUseCase(sl()));
+  sl.registerLazySingleton(() => FilterNewsUseCase(sl()));
+  sl.registerLazySingleton(() => CreateNewsUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateNewsUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteNewsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductUseCase(sl()));
   sl.registerLazySingleton(() => SearchProductsUseCase(sl()));
@@ -266,6 +275,9 @@ Future<void> init() async {
   sl.registerLazySingleton<CartRepository>(
     () => CartRepositoryImpl(localDataSource: sl()),
   );
+  sl.registerLazySingleton<NewsRepository>(
+    () => NewsRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
@@ -297,6 +309,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CartLocalDataSource>(
     () => CartLocalDataSourceImpl(),
+  );
+  sl.registerLazySingleton<NewsRemoteDataSource>(
+    () => NewsRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
   );
 
   // Use cases

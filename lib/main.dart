@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:prm393_biopestcontrol/app/app.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 
@@ -19,6 +20,9 @@ void main() async {
   // 2. Khởi tạo Dependency Injection (GetIt Service Locator)
   await di.init();
 
-  // 3. Chạy ứng dụng
+  // 3. Khởi tạo locale data cho intl (DateFormat)
+  await initializeDateFormatting('vi_VN', null);
+
+  // 4. Chạy ứng dụng
   runApp(const MyApp());
 }
