@@ -95,18 +95,15 @@ import 'package:prm393_biopestcontrol/features/cart/domain/usecases/clear_cart_u
 import 'package:prm393_biopestcontrol/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:prm393_biopestcontrol/features/cart/data/datasources/cart_local_data_source.dart';
 
-// --- News Feature ---
-import 'package:prm393_biopestcontrol/features/news/domain/repositories/news_repository.dart';
-import 'package:prm393_biopestcontrol/features/news/domain/usecases/get_news_list_usecase.dart';
-import 'package:prm393_biopestcontrol/features/news/domain/usecases/get_news_by_id_usecase.dart';
-import 'package:prm393_biopestcontrol/features/news/domain/usecases/search_news_usecase.dart';
-import 'package:prm393_biopestcontrol/features/news/domain/usecases/filter_news_usecase.dart';
-import 'package:prm393_biopestcontrol/features/news/domain/usecases/create_news_usecase.dart';
-import 'package:prm393_biopestcontrol/features/news/domain/usecases/update_news_usecase.dart';
-import 'package:prm393_biopestcontrol/features/news/domain/usecases/delete_news_usecase.dart';
-import 'package:prm393_biopestcontrol/features/news/data/repositories/news_repository_impl.dart';
-import 'package:prm393_biopestcontrol/features/news/data/datasources/news_remote_data_source.dart';
-import 'package:prm393_biopestcontrol/features/news/presentation/bloc/news_bloc.dart';
+import 'package:prm393_biopestcontrol/features/notification/data/datasources/notification_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/notification/data/repositories/notification_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/notification/domain/repositories/notification_repository.dart';
+import 'package:prm393_biopestcontrol/features/notification/domain/usecases/get_notifications.dart';
+import 'package:prm393_biopestcontrol/features/notification/domain/usecases/mark_as_read_usecase.dart';
+import 'package:prm393_biopestcontrol/features/notification/domain/usecases/mark_all_as_read_usecase.dart';
+import 'package:prm393_biopestcontrol/features/notification/domain/usecases/delete_notification_usecase.dart';
+import 'package:prm393_biopestcontrol/features/notification/domain/usecases/send_notification_usecase.dart';
+import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -189,17 +186,20 @@ Future<void> init() async {
         clearCartUseCase: sl(),
       ));
 
-  // --- Features: News ---
-  sl.registerFactory(() => NewsBloc(
-        getNewsListUseCase: sl(),
-        searchNewsUseCase: sl(),
-        filterNewsUseCase: sl(),
-        createNewsUseCase: sl(),
-        updateNewsUseCase: sl(),
-        deleteNewsUseCase: sl(),
+  sl.registerFactory(() => NotificationBloc(
+        getNotificationsUseCase: sl(),
+        markAsReadUseCase: sl(),
+        markAllAsReadUseCase: sl(),
+        deleteNotificationUseCase: sl(),
+        sendNotificationUseCase: sl(),
       ));
 
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAllAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteNotificationUseCase(sl()));
+  sl.registerLazySingleton(() => SendNotificationUseCase(sl()));
   sl.registerLazySingleton(() => GetCartUseCase(sl()));
   sl.registerLazySingleton(() => AddToCartUseCase(sl()));
   sl.registerLazySingleton(() => RemoveFromCartUseCase(sl()));
@@ -266,6 +266,9 @@ Future<void> init() async {
   sl.registerLazySingleton<CustomerRepository>(
     () => CustomerRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton<DiscountRepository>(
     () => DiscountRepositoryImpl(localDataSource: sl()),
   );
@@ -297,6 +300,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CustomerRemoteDataSource>(
     () => CustomerRemoteDataSourceImpl(firestore: sl()),
+  );
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(firestore: sl()),
   );
   sl.registerLazySingleton<DiscountLocalDataSource>(
     () => DiscountLocalDataSourceImpl(dbHelper: sl()),

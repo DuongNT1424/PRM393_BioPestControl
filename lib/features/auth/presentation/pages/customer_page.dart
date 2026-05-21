@@ -20,6 +20,10 @@ import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_state
 import 'package:prm393_biopestcontrol/features/product/presentation/pages/customer_product_detail_page.dart';
 import 'package:prm393_biopestcontrol/features/product/presentation/pages/customer_all_products_page.dart';
 import 'package:prm393_biopestcontrol/features/profile/presentation/pages/profile_page.dart';
+import 'package:prm393_biopestcontrol/features/notification/presentation/pages/notification_page.dart';
+import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_bloc.dart';
+import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_event.dart';
+import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_state.dart';
 
 class CustomerPage extends StatefulWidget {
   final AuthEntity user;
@@ -40,6 +44,7 @@ class _CustomerPageState extends State<CustomerPage> {
       providers: [
         BlocProvider(create: (context) => di.sl<ProductBloc>()..add(LoadProductsEvent())),
         BlocProvider(create: (context) => di.sl<CategoryBloc>()..add(LoadCategoriesEvent())),
+        BlocProvider(create: (context) => di.sl<NotificationBloc>()..add(LoadNotificationsEvent(widget.user.id ?? ''))),
       ],
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
@@ -129,7 +134,60 @@ class _CustomerPageState extends State<CustomerPage> {
                       ),
                       Row(
                         children: [
-                          Icon(Icons.notifications_none, color: Colors.grey[700], size: 22),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => NotificationPage(user: widget.user),
+                                ),
+                              ).then((_) {
+                                if (mounted) {
+                                  context.read<NotificationBloc>().add(LoadNotificationsEvent(widget.user.id ?? ''));
+                                }
+                              });
+                            },
+                            child: BlocBuilder<NotificationBloc, NotificationState>(
+                              builder: (context, state) {
+                                int unreadCount = 0;
+                                if (state is NotificationLoaded) {
+                                  unreadCount = state.notifications.where((element) => !element.isRead).length;
+                                }
+
+                                return Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    Icon(Icons.notifications_none, color: Colors.grey[700], size: 22),
+                                    if (unreadCount > 0)
+                                      Positioned(
+                                        right: -2,
+                                        top: -2,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.redAccent,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 14,
+                                            minHeight: 14,
+                                          ),
+                                          child: Text(
+                                            '$unreadCount',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 7,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
                           const SizedBox(width: 16),
                           GestureDetector(
                             onTap: () {

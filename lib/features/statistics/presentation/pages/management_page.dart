@@ -9,8 +9,7 @@ import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/stat
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_state.dart';
 import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
-import 'package:prm393_biopestcontrol/features/auth/presentation/pages/login_page.dart';
-import 'package:prm393_biopestcontrol/app/app.dart';
+// Import login_page và app.dart không còn cần sau khi chuyển sang popUntil
 import '../widgets/management_stat_card.dart';
 
 /// [ManagementPage] là trang Dashboard chính dành cho Admin và Staff.
@@ -39,10 +38,9 @@ class ManagementPage extends StatelessWidget {
           IconButton(
             onPressed: () {
               context.read<AuthBloc>().add(LogoutRequested());
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const AuthWrapper()),
-                (route) => false,
-              );
+              // Pop về route gốc `/` - AuthWrapper sẽ tự hiển thị LoginPage khi Unauthenticated
+              // KHÔNG dùng pushAndRemoveUntil vì sẽ xóa route gốc gây crash
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
             icon: const Icon(Icons.logout, color: Colors.redAccent),
           ),
@@ -57,10 +55,8 @@ class ManagementPage extends StatelessWidget {
         isAdmin: isAdmin,
         onLogout: () {
           context.read<AuthBloc>().add(LogoutRequested());
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const AuthWrapper()),
-            (route) => false,
-          );
+          // Pop về route gốc an toàn
+          Navigator.of(context).popUntil((route) => route.isFirst);
         },
       ),
       body: BlocBuilder<StatisticsBloc, StatisticsState>(
