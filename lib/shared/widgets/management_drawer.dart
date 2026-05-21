@@ -13,6 +13,7 @@ import 'package:prm393_biopestcontrol/features/customer/presentation/pages/custo
 import 'package:prm393_biopestcontrol/features/discount/presentation/pages/discount_management_page.dart';
 import 'package:prm393_biopestcontrol/features/profile/presentation/pages/profile_page.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
+import 'package:prm393_biopestcontrol/features/news/presentation/pages/news_page.dart';
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
 /// 
@@ -195,7 +196,19 @@ class ManagementDrawer extends StatelessWidget {
                   context,
                   icon: Icons.article_outlined,
                   title: 'News/Article',
-                  onTap: () {},
+                  selected: currentRoute == '/news',
+                  onTap: () {
+                    Navigator.pop(context);
+                    if (currentRoute != '/news') {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NewsPage(user: user),
+                          settings: const RouteSettings(name: '/news'),
+                        ),
+                      );
+                    }
+                  },
                 ),
                 _buildMenuItem(
                   context,

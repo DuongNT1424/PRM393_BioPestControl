@@ -95,6 +95,19 @@ import 'package:prm393_biopestcontrol/features/cart/domain/usecases/clear_cart_u
 import 'package:prm393_biopestcontrol/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:prm393_biopestcontrol/features/cart/data/datasources/cart_local_data_source.dart';
 
+// --- News Feature ---
+import 'package:prm393_biopestcontrol/features/news/domain/repositories/news_repository.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/get_news_list_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/get_news_by_id_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/search_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/filter_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/create_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/update_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/delete_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/data/repositories/news_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/news/data/datasources/news_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/news/presentation/bloc/news_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -176,12 +189,31 @@ Future<void> init() async {
         clearCartUseCase: sl(),
       ));
 
+  // --- Features: News ---
+  sl.registerFactory(() => NewsBloc(
+        getNewsListUseCase: sl(),
+        searchNewsUseCase: sl(),
+        filterNewsUseCase: sl(),
+        createNewsUseCase: sl(),
+        updateNewsUseCase: sl(),
+        deleteNewsUseCase: sl(),
+      ));
+
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
   sl.registerLazySingleton(() => GetCartUseCase(sl()));
   sl.registerLazySingleton(() => AddToCartUseCase(sl()));
   sl.registerLazySingleton(() => RemoveFromCartUseCase(sl()));
   sl.registerLazySingleton(() => UpdateCartQuantityUseCase(sl()));
   sl.registerLazySingleton(() => ClearCartUseCase(sl()));
+
+  // News Use Cases
+  sl.registerLazySingleton(() => GetNewsListUseCase(sl()));
+  sl.registerLazySingleton(() => GetNewsByIdUseCase(sl()));
+  sl.registerLazySingleton(() => SearchNewsUseCase(sl()));
+  sl.registerLazySingleton(() => FilterNewsUseCase(sl()));
+  sl.registerLazySingleton(() => CreateNewsUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateNewsUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteNewsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductUseCase(sl()));
   sl.registerLazySingleton(() => SearchProductsUseCase(sl()));
@@ -240,6 +272,9 @@ Future<void> init() async {
   sl.registerLazySingleton<CartRepository>(
     () => CartRepositoryImpl(localDataSource: sl()),
   );
+  sl.registerLazySingleton<NewsRepository>(
+    () => NewsRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
@@ -268,6 +303,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CartLocalDataSource>(
     () => CartLocalDataSourceImpl(),
+  );
+  sl.registerLazySingleton<NewsRemoteDataSource>(
+    () => NewsRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
   );
 
   // Use cases
