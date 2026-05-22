@@ -12,6 +12,7 @@ import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/stat
 import 'package:prm393_biopestcontrol/features/statistics/presentation/bloc/statistics_event.dart';
 
 import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:prm393_biopestcontrol/features/order/presentation/bloc/order_bloc.dart';
 
 /// [MyApp] là widget gốc của toàn bộ ứng dụng.
 /// Nó khởi tạo MaterialApp, cung cấp theme và AuthBloc cho toàn bộ widget tree.
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => di.sl<AuthBloc>()..add(AuthCheckRequested())),
         BlocProvider(create: (_) => di.sl<CartBloc>()),
+        BlocProvider(create: (_) => di.sl<OrderBloc>()),
       ],
       child: MaterialApp(
         title: 'BioPest Control',

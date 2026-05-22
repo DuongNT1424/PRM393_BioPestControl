@@ -105,6 +105,16 @@ import 'package:prm393_biopestcontrol/features/notification/domain/usecases/dele
 import 'package:prm393_biopestcontrol/features/notification/domain/usecases/send_notification_usecase.dart';
 import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_bloc.dart';
 
+// Features - Order
+import 'package:prm393_biopestcontrol/features/order/data/datasources/order_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/order/data/repositories/order_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/order/domain/repositories/order_repository.dart';
+import 'package:prm393_biopestcontrol/features/order/domain/usecases/create_order.dart';
+import 'package:prm393_biopestcontrol/features/order/domain/usecases/get_orders.dart';
+import 'package:prm393_biopestcontrol/features/order/domain/usecases/get_order_detail.dart';
+import 'package:prm393_biopestcontrol/features/order/domain/usecases/update_order_status.dart';
+import 'package:prm393_biopestcontrol/features/order/presentation/bloc/order_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -281,7 +291,7 @@ Future<void> init() async {
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
-    () => StatisticsLocalDataSourceImpl(dbHelper: sl()),
+    () => StatisticsLocalDataSourceImpl(dbHelper: sl(), firestore: sl()),
   );
   sl.registerLazySingleton<ProductLocalDataSource>(
     () => ProductLocalDataSourceImpl(dbHelper: sl()),
@@ -345,6 +355,33 @@ Future<void> init() async {
       firebaseAuth: sl(),
       firestore: sl(),
     ),
+  );
+
+  // Features - Order
+  // Bloc
+  sl.registerFactory(
+    () => OrderBloc(
+      createOrderUseCase: sl(),
+      getOrdersUseCase: sl(),
+      getOrderDetailUseCase: sl(),
+      updateOrderStatusUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => CreateOrderUseCase(sl()));
+  sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
+  sl.registerLazySingleton(() => GetOrderDetailUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateOrderStatusUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<OrderRepository>(
+    () => OrderRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<OrderRemoteDataSource>(
+    () => OrderRemoteDataSourceImpl(firestore: sl()),
   );
 
   // External
