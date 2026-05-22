@@ -25,6 +25,7 @@ import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/no
 import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_event.dart';
 import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_state.dart';
 import 'package:prm393_biopestcontrol/features/order/presentation/pages/customer_order_list_page.dart';
+import 'package:prm393_biopestcontrol/features/news/presentation/pages/customer_news_page.dart';
 
 class CustomerPage extends StatefulWidget {
   final AuthEntity user;
@@ -515,21 +516,60 @@ class _CustomerPageState extends State<CustomerPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'KIẾN THỨC',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.grey[600]),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'KIẾN THỨC',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.grey[600]),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CustomerNewsPage()),
+                );
+              },
+              child: const Row(
+                children: [
+                  Text(
+                    'Xem tất cả',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primaryColor),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.chevron_right, size: 16, color: AppColors.primaryColor),
+                ],
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
-        _buildBlogItem(
-          'Mẹo xử lý rầy nâu bằng tỏi và ớt hữu cơ',
-          '3 PHÚT ĐỌC',
-          'https://images.unsplash.com/photo-1444858291040-58f756a3bdd6?auto=format&fit=crop&w=200&q=80'
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CustomerNewsPage()),
+            );
+          },
+          child: _buildBlogItem(
+            'Mẹo xử lý rầy nâu bằng tỏi và ớt hữu cơ',
+            '3 PHÚT ĐỌC',
+            'https://images.unsplash.com/photo-1444858291040-58f756a3bdd6?auto=format&fit=crop&w=200&q=80'
+          ),
         ),
         const SizedBox(height: 24),
-        _buildBlogItem(
-          'Lịch bón phân tối ưu cho vụ Hè Thu',
-          '5 PHÚT ĐỌC',
-          'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=200&q=80'
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CustomerNewsPage()),
+            );
+          },
+          child: _buildBlogItem(
+            'Lịch bón phân tối ưu cho vụ Hè Thu',
+            '5 PHÚT ĐỌC',
+            'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=200&q=80'
+          ),
         ),
       ],
     );
@@ -638,6 +678,16 @@ class _CustomerPageState extends State<CustomerPage> {
               setState(() {
                 _currentIndex = 2;
               });
+            },
+          ),
+          _buildProfileMenuItem(
+            Icons.article_outlined,
+            'Tin tức & Kiến thức',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CustomerNewsPage()),
+              );
             },
           ),
           _buildProfileMenuItem(Icons.location_on_outlined, 'Địa chỉ giao hàng'),

@@ -115,6 +115,19 @@ import 'package:prm393_biopestcontrol/features/order/domain/usecases/get_order_d
 import 'package:prm393_biopestcontrol/features/order/domain/usecases/update_order_status.dart';
 import 'package:prm393_biopestcontrol/features/order/presentation/bloc/order_bloc.dart';
 
+// Features - News
+import 'package:prm393_biopestcontrol/features/news/data/datasources/news_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/news/data/repositories/news_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/repositories/news_repository.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/create_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/delete_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/filter_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/get_news_by_id_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/get_news_list_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/search_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/domain/usecases/update_news_usecase.dart';
+import 'package:prm393_biopestcontrol/features/news/presentation/bloc/news_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -202,6 +215,17 @@ Future<void> init() async {
         markAllAsReadUseCase: sl(),
         deleteNotificationUseCase: sl(),
         sendNotificationUseCase: sl(),
+      ));
+
+  // Features - News
+  // Bloc
+  sl.registerFactory(() => NewsBloc(
+        getNewsListUseCase: sl(),
+        searchNewsUseCase: sl(),
+        filterNewsUseCase: sl(),
+        createNewsUseCase: sl(),
+        updateNewsUseCase: sl(),
+        deleteNewsUseCase: sl(),
       ));
 
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));

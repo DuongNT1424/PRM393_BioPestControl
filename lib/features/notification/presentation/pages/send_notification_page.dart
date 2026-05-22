@@ -5,13 +5,18 @@ import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 import 'package:prm393_biopestcontrol/core/usecases/usecase.dart';
 import 'package:prm393_biopestcontrol/features/customer/domain/entities/customer_entity.dart';
 import 'package:prm393_biopestcontrol/features/customer/domain/usecases/get_customers_usecase.dart';
+import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
+import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
 import '../../domain/entities/notification.dart';
 import '../bloc/notification_bloc.dart';
 import '../bloc/notification_event.dart';
 import '../bloc/notification_state.dart';
 
 class SendNotificationPage extends StatefulWidget {
-  const SendNotificationPage({super.key});
+  final AuthEntity user;
+  const SendNotificationPage({super.key, required this.user});
 
   @override
   State<SendNotificationPage> createState() => _SendNotificationPageState();
@@ -126,158 +131,162 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => di.sl<NotificationBloc>(),
-      child: Scaffold(
-        backgroundColor: Colors.grey.shade50,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20),
-            onPressed: _isSending
-                ? null
-                : () {
-                    if (mounted && Navigator.canPop(context)) {
+      child: Builder(
+        builder: (context) {
+          final bool isAdmin = widget.user.role?.toLowerCase() == 'admin';
+          return Scaffold(
+            backgroundColor: Colors.grey.shade50,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              iconTheme: const IconThemeData(color: Colors.black87),
+              title: const Text(
+                'Gửi Thông Báo Mới',
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              bottom: const PreferredSize(
+                preferredSize: Size.fromHeight(1),
+                child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+              ),
+            ),
+            drawer: ManagementDrawer(
+              user: widget.user,
+              isAdmin: isAdmin,
+              onLogout: () {
+                context.read<AuthBloc>().add(LogoutRequested());
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+            body: PopScope(
+              canPop: !_isSending,
+              child: BlocConsumer<NotificationBloc, NotificationState>(
+                listener: (context, state) {
+                  if (state is NotificationActionSuccess) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message)),
+                    );
+                    // Kiểm tra kỹ mounted, canPop và đặc biệt là isCurrent để tránh pop nhầm trang khác
+                    if (mounted && ModalRoute.of(context)?.isCurrent == true && Navigator.canPop(context)) {
                       Navigator.pop(context);
                     }
-                  },
-          ),
-          title: const Text(
-            'Gửi Thông Báo Mới',
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
+                  } else if (state is NotificationError) {
+                    setState(() {
+                      _isSending = false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message)),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  final isLoading = state is NotificationLoading;
+
+                  return Stack(
+                    children: [
+                      SingleChildScrollView(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Hướng dẫn
+                              _buildHelperCard(),
+                              const SizedBox(height: 24),
+
+                              // Loại thông báo
+                              const Text(
+                                'PHÂN LOẠI THÔNG BÁO',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildTypeChips(),
+                              const SizedBox(height: 24),
+
+                              // Đối tượng nhận thông báo
+                              const Text(
+                                'ĐỐI TƯỢNG NHẬN',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                  letterSpacing: 1.5,
+                                ),
+                                                      ),
+                              const SizedBox(height: 12),
+                              _buildTargetSelector(),
+                              const SizedBox(height: 24),
+
+                              // Bộ mẫu soạn thảo nhanh
+                              _buildTemplateSelector(),
+
+                              // Form nhập liệu
+                              const Text(
+                                'NỘI DUNG CHI TIẾT',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildFormFields(),
+                              const SizedBox(height: 40),
+
+                              // Button gửi
+                              SizedBox(
+                                width: double.infinity,
+                                height: 52,
+                                child: ElevatedButton.icon(
+                                  onPressed: (isLoading || _isSending) ? null : () => _submitForm(context),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.send_rounded, size: 18),
+                                  label: const Text(
+                                    'GỬI THÔNG BÁO',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (isLoading)
+                        Container(
+                          color: Colors.black.withOpacity(0.15),
+                          child: const Center(
+                            child: CircularProgressIndicator(color: AppColors.primaryColor),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-          bottom: const PreferredSize(
-            preferredSize: Size.fromHeight(1),
-            child: Divider(height: 1, color: Color(0xFFEEEEEE)),
-          ),
-        ),
-        body: PopScope(
-          canPop: !_isSending,
-          child: BlocConsumer<NotificationBloc, NotificationState>(
-            listener: (context, state) {
-              if (state is NotificationActionSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-                // Kiểm tra kỹ mounted, canPop và đặc biệt là isCurrent để tránh pop nhầm trang khác
-                if (mounted && ModalRoute.of(context)?.isCurrent == true && Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                }
-              } else if (state is NotificationError) {
-                setState(() {
-                  _isSending = false;
-                });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
-              );
-            }
-          },
-          builder: (context, state) {
-            final isLoading = state is NotificationLoading;
-
-            return Stack(
-              children: [
-                SingleChildScrollView(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Hướng dẫn
-                        _buildHelperCard(),
-                        const SizedBox(height: 24),
-
-                        // Loại thông báo
-                        const Text(
-                          'PHÂN LOẠI THÔNG BÁO',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildTypeChips(),
-                        const SizedBox(height: 24),
-
-                        // Đối tượng nhận thông báo
-                        const Text(
-                          'ĐỐI TƯỢNG NHẬN',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildTargetSelector(),
-                        const SizedBox(height: 24),
-
-                        // Bộ mẫu soạn thảo nhanh
-                        _buildTemplateSelector(),
-
-                        // Form nhập liệu
-                        const Text(
-                          'NỘI DUNG CHI TIẾT',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildFormFields(),
-                        const SizedBox(height: 40),
-
-                        // Button gửi
-                        SizedBox(
-                          width: double.infinity,
-                          height: 52,
-                          child: ElevatedButton.icon(
-                            onPressed: (isLoading || _isSending) ? null : () => _submitForm(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryColor,
-                              foregroundColor: Colors.white,
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.send_rounded, size: 18),
-                            label: const Text(
-                              'GỬI THÔNG BÁO',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (isLoading)
-                  Container(
-                    color: Colors.black.withOpacity(0.15),
-                    child: const Center(
-                      child: CircularProgressIndicator(color: AppColors.primaryColor),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
-      ),
+          );
+        },
       ),
     );
   }
