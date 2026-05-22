@@ -13,6 +13,7 @@ import 'package:prm393_biopestcontrol/features/notification/presentation/pages/s
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
 import 'package:prm393_biopestcontrol/features/order/presentation/pages/admin_order_list_page.dart';
+import 'package:prm393_biopestcontrol/features/news/presentation/pages/news_page.dart';
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
 ///
@@ -205,47 +206,23 @@ class ManagementDrawer extends StatelessWidget {
                   context,
                   icon: Icons.article_outlined,
                   title: 'News/Article',
-                  onTap: () {},
+                  selected: currentRoute == '/news',
+                  onTap: () => _navigateToPage(
+                    context,
+                    NewsPage(user: user),
+                    '/news',
+                  ),
                 ),
                 _buildMenuItem(
                   context,
                   icon: Icons.notifications_active_outlined,
                   title: 'Send Notification',
                   selected: currentRoute == '/send_notification',
-                  onTap: () {
-                    // SendNotificationPage dùng Navigator.push (không phải pushReplacement)
-                    // vì nó là một trang modal riêng, không cùng cấp với các trang quản lý khác
-                    Navigator.pop(context); // Đóng drawer
-                    if (currentRoute != '/send_notification') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SendNotificationPage(),
-                          settings: const RouteSettings(name: '/send_notification'),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                _buildMenuItem(
-                  context,
-                  icon: Icons.notifications_active_outlined,
-                  title: 'Send Notification',
-                  selected: currentRoute == '/send_notification',
-                  onTap: () {
-                    // SendNotificationPage dùng Navigator.push (không phải pushReplacement)
-                    // vì nó là một trang modal riêng, không cùng cấp với các trang quản lý khác
-                    Navigator.pop(context); // Đóng drawer
-                    if (currentRoute != '/send_notification') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SendNotificationPage(),
-                          settings: const RouteSettings(name: '/send_notification'),
-                        ),
-                      );
-                    }
-                  },
+                  onTap: () => _navigateToPage(
+                    context,
+                    SendNotificationPage(user: user),
+                    '/send_notification',
+                  ),
                 ),
                 if (isAdmin)
                   _buildMenuItem(
