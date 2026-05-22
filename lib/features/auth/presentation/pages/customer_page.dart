@@ -24,6 +24,7 @@ import 'package:prm393_biopestcontrol/features/notification/presentation/pages/n
 import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_event.dart';
 import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_state.dart';
+import 'package:prm393_biopestcontrol/features/order/presentation/pages/customer_order_list_page.dart';
 
 class CustomerPage extends StatefulWidget {
   final AuthEntity user;
@@ -53,7 +54,7 @@ class _CustomerPageState extends State<CustomerPage> {
           children: [
             _buildStoreTab(),
             _buildPlaceholderTab('Chuyên gia'),
-            _buildPlaceholderTab('Đơn hàng'),
+            const CustomerOrderListPage(),
             _buildProfileTab(),
           ],
         ),
@@ -630,7 +631,15 @@ class _CustomerPageState extends State<CustomerPage> {
               );
             },
           ),
-          _buildProfileMenuItem(Icons.history, 'Lịch sử đơn hàng'),
+          _buildProfileMenuItem(
+            Icons.history,
+            'Lịch sử đơn hàng',
+            onTap: () {
+              setState(() {
+                _currentIndex = 2;
+              });
+            },
+          ),
           _buildProfileMenuItem(Icons.location_on_outlined, 'Địa chỉ giao hàng'),
           _buildProfileMenuItem(Icons.payment, 'Phương thức thanh toán'),
           _buildProfileMenuItem(Icons.settings_outlined, 'Cài đặt'),

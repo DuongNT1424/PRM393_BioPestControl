@@ -12,6 +12,7 @@ import 'package:prm393_biopestcontrol/features/profile/presentation/pages/profil
 import 'package:prm393_biopestcontrol/features/notification/presentation/pages/send_notification_page.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
+import 'package:prm393_biopestcontrol/features/order/presentation/pages/admin_order_list_page.dart';
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
 ///
@@ -90,6 +91,9 @@ class ManagementDrawer extends StatelessWidget {
 
     return Drawer(
       backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+      ),
       child: Column(
         children: [
           UserAccountsDrawerHeader(
@@ -102,7 +106,7 @@ class ManagementDrawer extends StatelessWidget {
               style: const TextStyle(color: Colors.black87),
             ),
             currentAccountPicture: CircleAvatar(
-              backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+              backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
               child: Text(
                 user.name?[0].toUpperCase() ?? 'U',
                 style: const TextStyle(fontSize: 40.0, color: AppColors.primaryColor, fontWeight: FontWeight.bold),
@@ -179,7 +183,12 @@ class ManagementDrawer extends StatelessWidget {
                   context,
                   icon: Icons.shopping_cart_outlined,
                   title: 'Order',
-                  onTap: () {},
+                  selected: currentRoute == '/admin_orders',
+                  onTap: () => _navigateToPage(
+                    context,
+                    const AdminOrderListPage(),
+                    '/admin_orders',
+                  ),
                 ),
                 _buildMenuItem(
                   context,
@@ -283,7 +292,9 @@ class ManagementDrawer extends StatelessWidget {
       selected: selected,
       selectedTileColor: AppColors.primaryColor,
       selectedColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+      ),
       onTap: onTap,
     );
   }

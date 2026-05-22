@@ -7,6 +7,8 @@ import '../bloc/cart_event.dart';
 import '../bloc/cart_state.dart';
 import '../widgets/cart_item_card.dart';
 
+import '../../../order/presentation/pages/checkout_page.dart';
+
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
@@ -95,8 +97,9 @@ class CartPage extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Tính năng thanh toán đang phát triển!')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const CheckoutPage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(

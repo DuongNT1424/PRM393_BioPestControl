@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/database/database_helper.dart';
 import '../../domain/entities/statistics_entity.dart';
 
@@ -8,38 +8,67 @@ abstract class StatisticsLocalDataSource {
 
 class StatisticsLocalDataSourceImpl implements StatisticsLocalDataSource {
   final DatabaseHelper dbHelper;
+  final FirebaseFirestore firestore;
 
-  StatisticsLocalDataSourceImpl({required this.dbHelper});
+  StatisticsLocalDataSourceImpl({
+    required this.dbHelper,
+    required this.firestore,
+  });
 
   @override
   Future<StatisticsEntity> getStatistics(String filterType) async {
     final db = await dbHelper.database;
     
-    // Tính toán khoảng thời gian dựa trên bộ lọc
-    String dateFilter = "";
-    DateTime now = DateTime.now();
-    
+    // 1. Tính toán thời gian bắt đầu (startDate) dựa trên filterType
+    final now = DateTime.now();
+    DateTime startDate;
     if (filterType == 'today') {
-      dateFilter = "WHERE date(created_at) = date('now')";
+      startDate = DateTime(now.year, now.month, now.day);
     } else if (filterType == 'week') {
-      dateFilter = "WHERE date(created_at) >= date('now', '-7 days')";
+      final sevenDaysAgo = now.subtract(const Duration(days: 7));
+      startDate = DateTime(sevenDaysAgo.year, sevenDaysAgo.month, sevenDaysAgo.day);
     } else if (filterType == 'month') {
-      dateFilter = "WHERE date(created_at) >= date('now', '-30 days')";
+      final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+      startDate = DateTime(thirtyDaysAgo.year, thirtyDaysAgo.month, thirtyDaysAgo.day);
+    } else {
+      startDate = DateTime(2000);
     }
 
-    // 1. Tính tổng doanh thu và tổng số lượng đã bán từ bảng orders
-    final List<Map<String, dynamic>> orderStats = await db.rawQuery(
-      'SELECT SUM(total_amount) as revenue, SUM(total_items) as sold, COUNT(id) as count FROM orders $dateFilter'
-    );
+    // 2. Truy vấn đơn hàng từ Firebase Firestore có createdAt >= startDate
+    final snapshot = await firestore
+        .collection('orders')
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .get();
 
-    // 2. Tính tổng sản phẩm liên kết từ bảng products
+    double totalRevenue = 0.0;
+    int totalSold = 0;
+    int newOrders = 0;
+
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final deliveryStatus = data['deliveryStatus'] ?? 'Pending';
+      
+      newOrders++;
+
+      if (deliveryStatus != 'Cancelled') {
+        final totalAmount = (data['totalAmount'] as num?)?.toDouble() ?? 0.0;
+        totalRevenue += totalAmount;
+
+        final itemsList = (data['items'] as List<dynamic>?) ?? [];
+        for (final item in itemsList) {
+          if (item is Map<String, dynamic>) {
+            final quantity = item['quantity'] ?? 0;
+            totalSold += quantity as int;
+          }
+        }
+      }
+    }
+
+    // 3. Tính tổng sản phẩm đang hoạt động từ bảng products trong SQLite (sửa cột is_active)
     final List<Map<String, dynamic>> productStats = await db.rawQuery(
-      'SELECT COUNT(id) as total FROM products WHERE is_linked = 1'
+      'SELECT COUNT(id) as total FROM products WHERE is_active = 1'
     );
 
-    double totalRevenue = (orderStats[0]['revenue'] ?? 0).toDouble();
-    int totalSold = orderStats[0]['sold'] ?? 0;
-    int newOrders = orderStats[0]['count'] ?? 0;
     int totalLinkedProducts = productStats[0]['total'] ?? 0;
 
     return StatisticsEntity(
