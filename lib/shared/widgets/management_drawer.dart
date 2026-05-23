@@ -14,6 +14,7 @@ import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
 import 'package:prm393_biopestcontrol/features/order/presentation/pages/admin_order_list_page.dart';
 import 'package:prm393_biopestcontrol/features/news/presentation/pages/news_page.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/pages/feedback_page.dart';
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
 ///
@@ -222,6 +223,17 @@ class ManagementDrawer extends StatelessWidget {
                     context,
                     SendNotificationPage(user: user),
                     '/send_notification',
+                  ),
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.feedback_outlined,
+                  title: 'Feedback/Support',
+                  selected: currentRoute == '/feedbacks',
+                  onTap: () => _navigateToPage(
+                    context,
+                    FeedbackPage(user: user),
+                    '/feedbacks',
                   ),
                 ),
                 if (isAdmin)

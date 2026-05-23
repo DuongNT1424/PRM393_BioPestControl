@@ -7,6 +7,13 @@ import '../../domain/entities/order.dart';
 import '../bloc/order_bloc.dart';
 import '../bloc/order_event.dart';
 import '../bloc/order_state.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_state.dart';
+import 'package:prm393_biopestcontrol/features/feedback/domain/entities/feedback.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/pages/feedback_page.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/bloc/feedback_bloc.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/bloc/feedback_event.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/widgets/feedback_form_dialog.dart';
 
 class CustomerOrderDetailPage extends StatefulWidget {
   final String orderId;
@@ -181,7 +188,11 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
                             // Chính sách hoàn trả & Hành động
                             if (order.deliveryStatus == 'Delivered' || order.deliveryStatus == 'Returned')
                               _buildReturnPolicySection(context, order),
-                            const SizedBox(height: 16),
+                             if (order.deliveryStatus == 'Delivered') ...[
+                               const SizedBox(height: 16),
+                               _buildFeedbackSection(context, order),
+                             ],
+                             const SizedBox(height: 16),
                             // Danh sách sản phẩm
                             Container(
                               decoration: BoxDecoration(
@@ -235,10 +246,28 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
                                                   style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                                                 ),
                                                 const SizedBox(height: 4),
-                                                Text(
-                                                  'SL: ${item.quantity}',
-                                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                                                ),
+                                                 Text(
+                                                   'SL: ${item.quantity}',
+                                                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                                 ),
+                                                 if (order.deliveryStatus == 'Delivered') ...[
+                                                   const SizedBox(height: 6),
+                                                   InkWell(
+                                                     onTap: () {
+                                                       _showProductFeedbackDialog(context, item);
+                                                     },
+                                                     child: const Row(
+                                                       children: [
+                                                         Icon(Icons.rate_review_outlined, size: 14, color: AppColors.primaryColor),
+                                                         SizedBox(width: 4),
+                                                         Text(
+                                                           'Viết đánh giá',
+                                                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+                                                         ),
+                                                       ],
+                                                     ),
+                                                   ),
+                                                 ],
                                               ],
                                             ),
                                           ),
@@ -621,5 +650,102 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildFeedbackSection(BuildContext context, OrderEntity order) {
+    if (order.deliveryStatus != 'Delivered') {
+      return const SizedBox();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.primaryColor.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primaryColor.withOpacity(0.15)),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.rate_review_outlined, color: AppColors.primaryColor, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Đóng góp ý kiến & phản hồi',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Đơn hàng đã được giao thành công! Quý khách có thể gửi ý kiến, đánh giá chất lượng sản phẩm & dịch vụ để giúp chúng tôi cải thiện tốt hơn.',
+            style: TextStyle(fontSize: 12, height: 1.4, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                final authState = context.read<AuthBloc>().state;
+                if (authState is Authenticated) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => FeedbackPage(user: authState.user),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng đăng nhập để gửi ý kiến phản hồi')),
+                  );
+                }
+              },
+              icon: const Icon(Icons.feedback_outlined, size: 16),
+              label: const Text('GỬI Ý KIẾN PHẢN HỒI', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showProductFeedbackDialog(BuildContext context, OrderItemEntity item) async {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is! Authenticated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng đăng nhập để gửi ý kiến phản hồi')),
+      );
+      return;
+    }
+
+    final result = await showDialog<FeedbackEntity>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => FeedbackFormDialog(
+        user: authState.user,
+        productId: item.productId,
+        productName: item.productName,
+      ),
+    );
+
+    if (result != null && mounted) {
+      final feedbackBloc = di.sl<FeedbackBloc>();
+      feedbackBloc.add(CreateFeedbackEvent(result));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cảm ơn ý kiến đóng góp của bạn cho sản phẩm này!'),
+          backgroundColor: AppColors.primaryColor,
+        ),
+      );
+    }
   }
 }
