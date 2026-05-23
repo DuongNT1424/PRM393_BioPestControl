@@ -8,6 +8,8 @@ import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_bloc.
 import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_event.dart';
 import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_state.dart';
 import 'package:prm393_biopestcontrol/features/cart/presentation/pages/cart_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:prm393_biopestcontrol/features/feedback/data/models/feedback_model.dart';
 
 class CustomerProductDetailPage extends StatelessWidget {
   final ProductEntity product;
@@ -117,55 +119,154 @@ class CustomerProductDetailPage extends StatelessWidget {
                     product.description ?? 'Sản phẩm này chưa có mô tả.',
                     style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.6),
                   ),
-                  
-                  const SizedBox(height: 40),
-                  const Divider(),
                   const SizedBox(height: 24),
-                  
-                  // Feedback / Reviews Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Đánh giá & Phản hồi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 20),
-                          const SizedBox(width: 4),
-                          const Text('4.8', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                          Text(' (12)', style: TextStyle(color: Colors.grey[600])),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFeedbackItem(
-                    'Nguyễn Văn A', 
-                    '5', 
-                    'Sản phẩm rất tốt, lúa nhà tôi xanh mướt sau khi sử dụng. Giao hàng cực nhanh!', 
-                    '2 ngày trước'
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFeedbackItem(
-                    'Trần Thị B', 
-                    '4', 
-                    'Thuốc xịt không bị mùi hắc, dễ sử dụng. Sẽ tiếp tục ủng hộ shop lâu dài.', 
-                    '1 tuần trước'
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primaryColor,
-                        side: const BorderSide(color: AppColors.primaryColor),
-                      ),
-                      child: const Text('Xem tất cả đánh giá'),
-                    ),
-                  ),
-                  const SizedBox(height: 80), // Padding for bottom button
                 ],
               ),
             ),
+
+            // Dynamic Feedback/Reviews Section from Firestore
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('feedbacks')
+                  .where('productId', isEqualTo: product.id)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox();
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const SizedBox(); // Hide if no reviews
+                }
+
+                final docs = snapshot.data!.docs;
+                final reviews = docs.map((doc) => FeedbackModel.fromFirestore(doc)).toList();
+                
+                // Calculate average rating
+                double avgRating = 0;
+                if (reviews.isNotEmpty) {
+                  double total = 0;
+                  for (var r in reviews) {
+                    total += r.rating;
+                  }
+                  avgRating = total / reviews.length;
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Đánh giá từ Khách hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Row(
+                            children: [
+                              const Icon(Icons.star, color: Colors.amber, size: 20),
+                              const SizedBox(width: 4),
+                              Text(
+                                avgRating.toStringAsFixed(1),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              Text(
+                                ' (${reviews.length})',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: reviews.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, idx) {
+                          final r = reviews[idx];
+                          final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey[200]!),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(r.customerName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text(
+                                      dateFormat.format(r.createdAt),
+                                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: List.generate(
+                                    5,
+                                    (starIdx) => Icon(
+                                      starIdx < r.rating ? Icons.star : Icons.star_border,
+                                      color: Colors.amber,
+                                      size: 14,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(r.content, style: TextStyle(color: Colors.grey[800], fontSize: 13, height: 1.4)),
+                                if (r.replyContent != null && r.replyContent!.isNotEmpty) ...[
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor.withOpacity(0.04),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: AppColors.primaryColor.withOpacity(0.1)),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              r.replyAuthorName ?? 'Đội ngũ hỗ trợ',
+                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+                                            ),
+                                            if (r.repliedAt != null)
+                                              Text(
+                                                dateFormat.format(r.repliedAt!),
+                                                style: TextStyle(fontSize: 9, color: Colors.grey[500]),
+                                              ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          r.replyContent!,
+                                          style: TextStyle(fontSize: 12, color: Colors.grey[800], height: 1.4),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 80), // Padding for bottom button
           ],
         ),
       ),
@@ -216,39 +317,5 @@ class CustomerProductDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeedbackItem(String name, String rating, String comment, String time) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(time, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: List.generate(
-              5, 
-              (index) => Icon(
-                index < int.parse(rating) ? Icons.star : Icons.star_border, 
-                color: Colors.amber, 
-                size: 14
-              )
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(comment, style: TextStyle(color: Colors.grey[800], fontSize: 14)),
-        ],
-      ),
-    );
-  }
+
 }

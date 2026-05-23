@@ -128,6 +128,17 @@ import 'package:prm393_biopestcontrol/features/news/domain/usecases/search_news_
 import 'package:prm393_biopestcontrol/features/news/domain/usecases/update_news_usecase.dart';
 import 'package:prm393_biopestcontrol/features/news/presentation/bloc/news_bloc.dart';
 
+// Features - Feedback
+import 'package:prm393_biopestcontrol/features/feedback/data/datasources/feedback_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/feedback/data/repositories/feedback_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/feedback/domain/repositories/feedback_repository.dart';
+import 'package:prm393_biopestcontrol/features/feedback/domain/usecases/create_feedback.dart';
+import 'package:prm393_biopestcontrol/features/feedback/domain/usecases/delete_feedback.dart';
+import 'package:prm393_biopestcontrol/features/feedback/domain/usecases/get_feedbacks.dart';
+import 'package:prm393_biopestcontrol/features/feedback/domain/usecases/reply_feedback.dart';
+import 'package:prm393_biopestcontrol/features/feedback/domain/usecases/update_feedback.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/bloc/feedback_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -228,6 +239,18 @@ Future<void> init() async {
         deleteNewsUseCase: sl(),
       ));
 
+  // Features - Feedback
+  // Bloc
+  sl.registerFactory(
+    () => FeedbackBloc(
+      getFeedbacksUseCase: sl(),
+      createFeedbackUseCase: sl(),
+      updateFeedbackUseCase: sl(),
+      deleteFeedbackUseCase: sl(),
+      replyFeedbackUseCase: sl(),
+    ),
+  );
+
   sl.registerLazySingleton(() => GetStatisticsUseCase(sl()));
   sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
   sl.registerLazySingleton(() => MarkAsReadUseCase(sl()));
@@ -248,6 +271,13 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateNewsUseCase(sl()));
   sl.registerLazySingleton(() => UpdateNewsUseCase(sl()));
   sl.registerLazySingleton(() => DeleteNewsUseCase(sl()));
+
+  // Feedback Use Cases
+  sl.registerLazySingleton(() => GetFeedbacksUseCase(sl()));
+  sl.registerLazySingleton(() => CreateFeedbackUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateFeedbackUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteFeedbackUseCase(sl()));
+  sl.registerLazySingleton(() => ReplyFeedbackUseCase(sl()));
   sl.registerLazySingleton(() => GetProductsUseCase(sl()));
   sl.registerLazySingleton(() => GetProductUseCase(sl()));
   sl.registerLazySingleton(() => SearchProductsUseCase(sl()));
@@ -312,6 +342,9 @@ Future<void> init() async {
   sl.registerLazySingleton<NewsRepository>(
     () => NewsRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<FeedbackRepository>(
+    () => FeedbackRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
@@ -346,6 +379,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<NewsRemoteDataSource>(
     () => NewsRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+  sl.registerLazySingleton<FeedbackRemoteDataSource>(
+    () => FeedbackRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
   );
 
   // Use cases

@@ -26,6 +26,7 @@ import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/no
 import 'package:prm393_biopestcontrol/features/notification/presentation/bloc/notification_state.dart';
 import 'package:prm393_biopestcontrol/features/order/presentation/pages/customer_order_list_page.dart';
 import 'package:prm393_biopestcontrol/features/news/presentation/pages/customer_news_page.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/pages/feedback_page.dart';
 
 class CustomerPage extends StatefulWidget {
   final AuthEntity user;
@@ -687,6 +688,18 @@ class _CustomerPageState extends State<CustomerPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CustomerNewsPage()),
+              );
+            },
+          ),
+          _buildProfileMenuItem(
+            Icons.feedback_outlined,
+            'Gửi Ý Kiến & Phản Hồi',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => FeedbackPage(user: widget.user),
+                ),
               );
             },
           ),
