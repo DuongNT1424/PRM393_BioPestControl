@@ -101,6 +101,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
             );
           }
           if (state is OrderActionSuccess) {
+            // Lưu lại tổng số tiền trước khi xóa sạch giỏ hàng
+            final orderAmount = context.read<CartBloc>().state.totalPrice;
+
             // Xóa sạch giỏ hàng khi đặt hàng thành công
             context.read<CartBloc>().add(ClearCartEvent());
 
@@ -111,7 +114,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 MaterialPageRoute(
                   builder: (_) => PaymentGatewayPage(
                     orderId: state.orderId ?? '',
-                    totalAmount: context.read<CartBloc>().state.totalPrice, // Sử dụng tạm thời hoặc truyền số trước đó
+                    totalAmount: orderAmount,
                   ),
                 ),
               );
