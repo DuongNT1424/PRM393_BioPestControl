@@ -6,7 +6,6 @@ import '../bloc/cart_bloc.dart';
 import '../bloc/cart_event.dart';
 import '../bloc/cart_state.dart';
 import '../widgets/cart_item_card.dart';
-
 import '../../../order/presentation/pages/checkout_page.dart';
 
 class CartPage extends StatelessWidget {
