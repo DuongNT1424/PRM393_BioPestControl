@@ -8,6 +8,9 @@ import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_bloc.
 import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_event.dart';
 import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_state.dart';
 import 'package:prm393_biopestcontrol/features/cart/presentation/pages/cart_page.dart';
+import 'package:prm393_biopestcontrol/features/chat/presentation/pages/chat_page.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_state.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prm393_biopestcontrol/features/feedback/data/models/feedback_model.dart';
 
@@ -280,7 +283,24 @@ class CustomerProductDetailPage extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  final authState = context.read<AuthBloc>().state;
+                  if (authState is Authenticated) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChatPage(
+                          user: authState.user,
+                          productName: product.name,
+                        ),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Vui lòng đăng nhập để chat với hỗ trợ')),
+                    );
+                  }
+                },
                 icon: const Icon(Icons.chat_bubble_outline),
                 label: const Text('Chat'),
                 style: OutlinedButton.styleFrom(

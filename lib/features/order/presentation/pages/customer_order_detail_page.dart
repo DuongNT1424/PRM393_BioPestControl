@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +14,7 @@ import 'package:prm393_biopestcontrol/features/feedback/domain/entities/feedback
 import 'package:prm393_biopestcontrol/features/feedback/presentation/pages/feedback_page.dart';
 import 'package:prm393_biopestcontrol/features/feedback/presentation/bloc/feedback_bloc.dart';
 import 'package:prm393_biopestcontrol/features/feedback/presentation/bloc/feedback_event.dart';
+import 'package:prm393_biopestcontrol/features/feedback/presentation/bloc/feedback_state.dart';
 import 'package:prm393_biopestcontrol/features/feedback/presentation/widgets/feedback_form_dialog.dart';
 
 class CustomerOrderDetailPage extends StatefulWidget {
@@ -738,14 +740,34 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
 
     if (result != null && mounted) {
       final feedbackBloc = di.sl<FeedbackBloc>();
-      feedbackBloc.add(CreateFeedbackEvent(result));
+      late final StreamSubscription subscription;
+      subscription = feedbackBloc.stream.listen((state) {
+        if (state is FeedbackActionSuccess) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.primaryColor,
+              ),
+            );
+          }
+          subscription.cancel();
+          feedbackBloc.close();
+        } else if (state is FeedbackError) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Lỗi: ${state.message}'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+          subscription.cancel();
+          feedbackBloc.close();
+        }
+      });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cảm ơn ý kiến đóng góp của bạn cho sản phẩm này!'),
-          backgroundColor: AppColors.primaryColor,
-        ),
-      );
+      feedbackBloc.add(CreateFeedbackEvent(result));
     }
   }
 }

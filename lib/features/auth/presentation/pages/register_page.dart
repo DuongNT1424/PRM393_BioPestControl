@@ -175,6 +175,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                           email: _emailController.text,
                                           password: _passwordController.text,
                                           name: _nameController.text,
+                                          phone: _phoneController.text,
                                         ),
                                       );
                                     },

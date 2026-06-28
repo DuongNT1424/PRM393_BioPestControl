@@ -323,6 +323,9 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
                 )
               : null,
           body: BlocConsumer<FeedbackBloc, FeedbackState>(
+            buildWhen: (previous, current) {
+              return current is FeedbackLoading || current is FeedbackLoaded || current is FeedbackError;
+            },
             listener: (context, state) {
               if (state is FeedbackActionSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(

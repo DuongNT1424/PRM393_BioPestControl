@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
+import 'package:prm393_biopestcontrol/features/chat/presentation/pages/chat_page.dart';
 import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -99,7 +100,14 @@ class _CustomerPageState extends State<CustomerPage> {
           ),
         ),
         floatingActionButton: _currentIndex == 0 ? FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ChatPage(user: widget.user),
+              ),
+            );
+          },
           backgroundColor: AppColors.primaryColor,
           elevation: 4,
           shape: const CircleBorder(),
@@ -611,11 +619,146 @@ class _CustomerPageState extends State<CustomerPage> {
   }
 
   Widget _buildPlaceholderTab(String title) {
-    return Center(
-      child: Text(
-        'Đang phát triển: $title',
-        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFF1F8F5),
+            Colors.white,
+            Color(0xFFE8F5E9),
+          ],
+        ),
       ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryColor.withOpacity(0.15),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.psychology_alt_outlined,
+                  size: 80,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Tư Vấn Với Chuyên Gia',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.primaryColor,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Tính năng đang được phát triển để kết nối bạn trực tiếp với các chuyên gia nông nghiệp hàng đầu. Bạn có thể hỏi đáp bệnh cây trồng và nhận phản hồi trực tiếp.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.green.shade100, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _buildFeaturePromoItem(Icons.chat_bubble_outline, 'Chat trực tiếp 1:1 với Chuyên gia'),
+                    const SizedBox(height: 16),
+                    _buildFeaturePromoItem(Icons.camera_alt_outlined, 'Chụp hình chẩn đoán bệnh cây bằng AI'),
+                    const SizedBox(height: 16),
+                    _buildFeaturePromoItem(Icons.verified_outlined, 'Giải pháp sinh học & hữu cơ an toàn'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.primaryColor, Color(0xFF2E7D32)],
+                  ),
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryColor.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  'COMING SOON',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturePromoItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primaryColor.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: AppColors.primaryColor),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
