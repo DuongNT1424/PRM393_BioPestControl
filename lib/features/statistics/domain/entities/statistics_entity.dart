@@ -14,13 +14,17 @@ class StatisticsEntity extends Equatable {
   /// Số lượng đơn hàng mới (Dành cho Dashboard).
   final int newOrders;
 
+  /// Doanh thu theo thứ trong tuần (0: Thứ 2 -> 6: Chủ Nhật)
+  final List<double> revenueByWeekday;
+
   const StatisticsEntity({
     required this.totalRevenue,
     required this.totalSold,
     required this.totalLinkedProducts,
     required this.newOrders,
+    required this.revenueByWeekday,
   });
 
   @override
-  List<Object?> get props => [totalRevenue, totalSold, totalLinkedProducts, newOrders];
+  List<Object?> get props => [totalRevenue, totalSold, totalLinkedProducts, newOrders, revenueByWeekday];
 }

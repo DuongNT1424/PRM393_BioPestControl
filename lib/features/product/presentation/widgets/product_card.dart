@@ -17,22 +17,16 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
+      margin: const EdgeInsets.only(bottom: 16),
+      clipBehavior: Clip.antiAlias, // Quan trọng: bo góc luôn cả ripple effect
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -41,7 +35,6 @@ class ProductCard extends StatelessWidget {
               Container(
                 width: 100,
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
                   image: DecorationImage(
                     image: (product.imageUrl != null && product.imageUrl!.isNotEmpty)
                         ? NetworkImage(product.imageUrl!)

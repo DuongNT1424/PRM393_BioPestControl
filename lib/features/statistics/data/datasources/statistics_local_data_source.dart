@@ -43,6 +43,7 @@ class StatisticsLocalDataSourceImpl implements StatisticsLocalDataSource {
     double totalRevenue = 0.0;
     int totalSold = 0;
     int newOrders = 0;
+    List<double> revenueByWeekday = List.filled(7, 0.0);
 
     for (final doc in snapshot.docs) {
       final data = doc.data();
@@ -53,6 +54,14 @@ class StatisticsLocalDataSourceImpl implements StatisticsLocalDataSource {
       if (deliveryStatus != 'Cancelled') {
         final totalAmount = (data['totalAmount'] as num?)?.toDouble() ?? 0.0;
         totalRevenue += totalAmount;
+
+        // Cập nhật doanh thu theo thứ trong tuần (0: Thứ 2 -> 6: Chủ nhật)
+        final createdAtTimestamp = data['createdAt'] as Timestamp?;
+        if (createdAtTimestamp != null) {
+          final createdAt = createdAtTimestamp.toDate();
+          final index = createdAt.weekday - 1; // DateTime.weekday: 1 (Mon) -> 7 (Sun)
+          revenueByWeekday[index] += totalAmount;
+        }
 
         final itemsList = (data['items'] as List<dynamic>?) ?? [];
         for (final item in itemsList) {
@@ -76,6 +85,7 @@ class StatisticsLocalDataSourceImpl implements StatisticsLocalDataSource {
       totalSold: totalSold,
       totalLinkedProducts: totalLinkedProducts,
       newOrders: newOrders,
+      revenueByWeekday: revenueByWeekday,
     );
   }
 }
