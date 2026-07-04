@@ -112,6 +112,9 @@ class _ProductPageState extends State<ProductPage> {
             },
           ),
           body: BlocConsumer<ProductBloc, ProductState>(
+            buildWhen: (previous, current) {
+              return current is ProductLoading || current is ProductLoaded || current is ProductError;
+            },
             listener: (context, state) {
               if (state is ProductActionSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -187,13 +190,17 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _navigateToDetail(BuildContext context, ProductEntity product) {
+    final productBloc = context.read<ProductBloc>();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ProductDetailPage(
-          product: product,
-          onEdit: (p) => _navigateToForm(context, product: p),
-          onDelete: (id) => context.read<ProductBloc>().add(DeleteProductEvent(id)),
+        builder: (_) => BlocProvider.value(
+          value: productBloc,
+          child: ProductDetailPage(
+            product: product,
+            onEdit: (p) => _navigateToForm(context, product: p),
+            onDelete: (id) => productBloc.add(DeleteProductEvent(id)),
+          ),
         ),
       ),
     );

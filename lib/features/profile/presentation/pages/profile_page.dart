@@ -26,6 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isEditingName = false;
   final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  BuildContext? _loadingDialogContext;
 
   @override
   void initState() {
@@ -79,17 +80,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
-                  builder: (_) => const Center(
-                    child: CircularProgressIndicator(color: AppColors.primaryColor),
-                  ),
+                  builder: (dialogContext) {
+                    _loadingDialogContext = dialogContext;
+                    return const Center(
+                      child: CircularProgressIndicator(color: AppColors.primaryColor),
+                    );
+                  },
                 );
               } else {
                 // Ẩn Loading dialog nếu đang hiển thị
-                if (ModalRoute.of(context)?.isCurrent == false) {
-                  final isLoaderShowing = Navigator.of(context).canPop();
-                  if (isLoaderShowing) {
-                    Navigator.pop(context);
-                  }
+                if (_loadingDialogContext != null) {
+                  Navigator.of(_loadingDialogContext!).pop();
+                  _loadingDialogContext = null;
                 }
               }
 

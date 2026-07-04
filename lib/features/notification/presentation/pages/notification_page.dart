@@ -94,6 +94,9 @@ class _NotificationPageState extends State<NotificationPage> {
             // Notification List View
             Expanded(
               child: BlocConsumer<NotificationBloc, NotificationState>(
+                buildWhen: (previous, current) {
+                  return current is NotificationLoading || current is NotificationLoaded || current is NotificationError;
+                },
                 listener: (context, state) {
                   if (state is NotificationError) {
                     ScaffoldMessenger.of(context).showSnackBar(

@@ -118,18 +118,22 @@ class _StaffPageState extends State<StaffPage> {
   }
 
   void _navigateToForm(BuildContext context, {StaffEntity? staff}) async {
+    final staffBloc = context.read<StaffBloc>();
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => StaffFormPage(staff: staff),
+        builder: (_) => BlocProvider.value(
+          value: staffBloc,
+          child: StaffFormPage(staff: staff),
+        ),
       ),
     );
 
     if (result != null && mounted) {
       if (staff == null) {
-        context.read<StaffBloc>().add(AddStaffEvent(result as StaffEntity));
+        staffBloc.add(AddStaffEvent(result as StaffEntity));
       } else {
-        context.read<StaffBloc>().add(UpdateStaffEvent(result as StaffEntity));
+        staffBloc.add(UpdateStaffEvent(result as StaffEntity));
       }
     }
   }
