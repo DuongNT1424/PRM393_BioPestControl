@@ -41,6 +41,25 @@ class CustomerPage extends StatefulWidget {
 class _CustomerPageState extends State<CustomerPage> {
   int _currentIndex = 0;
   int? _selectedCategoryId;
+  final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchTextChanged);
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +86,7 @@ class _CustomerPageState extends State<CustomerPage> {
           ),
           child: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            backgroundColor: AppColors.surfaceColor.withOpacity(0.95),
+            backgroundColor: AppColors.surfaceColor.withValues(alpha: 0.95),
             currentIndex: _currentIndex,
             selectedItemColor: AppColors.primaryColor,
             unselectedItemColor: Colors.grey[500],
@@ -124,7 +143,7 @@ class _CustomerPageState extends State<CustomerPage> {
         SliverAppBar(
           pinned: true,
           floating: true,
-          backgroundColor: const Color(0xFFF1F5F1).withOpacity(0.95),
+          backgroundColor: const Color(0xFFF1F5F1).withValues(alpha: 0.95),
           elevation: 0,
           toolbarHeight: 110,
           flexibleSpace: SafeArea(
@@ -242,6 +261,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
+                            controller: _searchController,
                             decoration: InputDecoration(
                               hintText: 'Tìm kiếm giải pháp...',
                               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
@@ -250,8 +270,34 @@ class _CustomerPageState extends State<CustomerPage> {
                               contentPadding: const EdgeInsets.symmetric(vertical: 8),
                               fillColor: Colors.transparent,
                               filled: true,
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: Icon(Icons.clear, color: Colors.grey[500], size: 18),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        context.read<ProductBloc>().add(LoadProductsEvent());
+                                      },
+                                    )
+                                  : null,
                             ),
                             style: const TextStyle(fontSize: 14),
+                            onChanged: (query) {
+                              if (query.trim().isEmpty) {
+                                // Reset về tất cả sản phẩm khi xóa tìm kiếm
+                                context.read<ProductBloc>().add(LoadProductsEvent());
+                              } else {
+                                context.read<ProductBloc>().add(SearchProductEvent(query.trim()));
+                              }
+                            },
+                            onSubmitted: (query) {
+                              if (query.trim().isEmpty) {
+                                context.read<ProductBloc>().add(LoadProductsEvent());
+                              } else {
+                                context.read<ProductBloc>().add(SearchProductEvent(query.trim()));
+                              }
+                            },
                           ),
                         ),
                       ],
@@ -480,7 +526,7 @@ class _CustomerPageState extends State<CustomerPage> {
               child: Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported, color: Colors.grey),
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: Colors.grey),
               ),
             ),
           ),
@@ -501,19 +547,24 @@ class _CustomerPageState extends State<CustomerPage> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: () {
-              context.read<CartBloc>().add(AddToCartEvent(product));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Đã thêm ${product.name} vào giỏ hàng'), duration: const Duration(seconds: 1)),
-              );
-            },
+            onPressed: product.stock > 0
+                ? () {
+                    context.read<CartBloc>().add(AddToCartEvent(product));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Đã thêm ${product.name} vào giỏ hàng'), duration: const Duration(seconds: 1)),
+                    );
+                  }
+                : null,
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primaryColor,
-              side: const BorderSide(color: AppColors.primaryColor),
+              foregroundColor: product.stock > 0 ? AppColors.primaryColor : Colors.grey,
+              side: BorderSide(color: product.stock > 0 ? AppColors.primaryColor : Colors.grey[300]!),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.symmetric(vertical: 8),
             ),
-            child: const Text('THÊM', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            child: Text(
+              product.stock > 0 ? 'THÊM' : 'HẾT',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ],
@@ -645,7 +696,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.15),
+                      color: AppColors.primaryColor.withValues(alpha: 0.15),
                       blurRadius: 30,
                       spreadRadius: 5,
                     ),
@@ -682,12 +733,12 @@ class _CustomerPageState extends State<CustomerPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.green.shade100, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -713,7 +764,7 @@ class _CustomerPageState extends State<CustomerPage> {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.3),
+                      color: AppColors.primaryColor.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -742,7 +793,7 @@ class _CustomerPageState extends State<CustomerPage> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.primaryColor.withOpacity(0.08),
+            color: AppColors.primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, size: 20, color: AppColors.primaryColor),
@@ -780,7 +831,7 @@ class _CustomerPageState extends State<CustomerPage> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                  backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
                   child: Text(
                     widget.user.name?.isNotEmpty == true ? widget.user.name![0].toUpperCase() : 'C',
                     style: const TextStyle(fontSize: 24, color: AppColors.primaryColor, fontWeight: FontWeight.bold),

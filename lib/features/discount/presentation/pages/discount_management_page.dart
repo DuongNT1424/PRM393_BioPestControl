@@ -23,6 +23,23 @@ class _DiscountManagementPageState extends State<DiscountManagementPage> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchTextChanged);
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => di.sl<DiscountBloc>()..add(LoadDiscounts()),
@@ -60,6 +77,15 @@ class _DiscountManagementPageState extends State<DiscountManagementPage> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.grey.shade300),
                       ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                context.read<DiscountBloc>().add(LoadDiscounts());
+                              },
+                            )
+                          : null,
                     ),
                     onChanged: (value) {
                       context.read<DiscountBloc>().add(SearchDiscounts(value));

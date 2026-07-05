@@ -9,6 +9,7 @@ class GetCustomerDetailUseCase implements UseCase<CustomerEntity, String> {
 
   GetCustomerDetailUseCase(this.repository);
 
+  @override
   Future<Either<Failure, CustomerEntity>> call(String id) async {
     return await repository.getCustomerById(id);
   }

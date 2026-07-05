@@ -8,8 +8,6 @@ import 'package:prm393_biopestcontrol/features/category/presentation/bloc/catego
 import 'package:prm393_biopestcontrol/features/category/presentation/widgets/category_card.dart';
 import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
-import 'package:prm393_biopestcontrol/features/auth/presentation/pages/login_page.dart';
-import 'package:prm393_biopestcontrol/app/app.dart';
 
 import 'package:prm393_biopestcontrol/shared/widgets/management_drawer.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
@@ -127,7 +125,7 @@ class CategoryPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               final newCategory = CategoryEntity(
-                id: isEdit ? category!.id : DateTime.now().millisecondsSinceEpoch,
+                id: isEdit ? category.id : DateTime.now().millisecondsSinceEpoch,
                 name: nameController.text,
                 description: descController.text,
               );

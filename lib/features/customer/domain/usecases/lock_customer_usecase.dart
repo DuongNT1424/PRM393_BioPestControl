@@ -8,6 +8,7 @@ class LockCustomerUseCase implements UseCase<void, String> {
 
   LockCustomerUseCase(this.repository);
 
+  @override
   Future<Either<Failure, void>> call(String id) async {
     return await repository.lockCustomer(id);
   }

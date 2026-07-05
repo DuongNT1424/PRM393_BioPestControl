@@ -1,7 +1,7 @@
 import '../../domain/entities/discount_entity.dart';
 
 /// [DiscountModel] là lớp kế thừa từ [DiscountEntity] để xử lý chuyển đổi dữ liệu.
-/// Lớp này chịu trách nhiệm map dữ liệu từ/vào SQLite (Map<String, dynamic>).
+/// Lớp này chịu trách nhiệm map dữ liệu từ/vào SQLite (`Map<String, dynamic>`).
 class DiscountModel extends DiscountEntity {
   const DiscountModel({
     super.id,
@@ -22,7 +22,7 @@ class DiscountModel extends DiscountEntity {
       id: map['id'],
       name: map['name'],
       description: map['description'],
-      discountPercent: map['discount_percent'] as double,
+      discountPercent: (map['discount_percent'] as num).toDouble(),
       startDate: DateTime.parse(map['start_date']),
       endDate: DateTime.parse(map['end_date']),
       isAllProducts: map['is_all_products'] == 1,

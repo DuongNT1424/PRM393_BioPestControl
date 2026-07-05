@@ -24,17 +24,17 @@ class RegisterSideDecoration extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 40),
-            Icon(Icons.eco, color: AppColors.primaryColor.withOpacity(0.3)),
+            Icon(Icons.eco, color: AppColors.primaryColor.withValues(alpha: 0.3)),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Container(
                   width: 1,
-                  color: AppColors.primaryColor.withOpacity(0.1),
+                  color: AppColors.primaryColor.withValues(alpha: 0.1),
                 ),
               ),
             ),
-            Icon(Icons.verified, color: AppColors.primaryColor.withOpacity(0.3)),
+            Icon(Icons.verified, color: AppColors.primaryColor.withValues(alpha: 0.3)),
             const SizedBox(height: 40),
           ],
         ),

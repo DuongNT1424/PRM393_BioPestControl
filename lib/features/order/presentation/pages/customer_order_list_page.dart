@@ -25,6 +25,7 @@ class _CustomerOrderListPageState extends State<CustomerOrderListPage> with Sing
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _searchController.addListener(_onSearchTextChanged);
     
     // Tải danh sách đơn hàng ban đầu của khách hàng hiện tại
     final authState = context.read<AuthBloc>().state;
@@ -34,8 +35,13 @@ class _CustomerOrderListPageState extends State<CustomerOrderListPage> with Sing
     }
   }
 
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -98,19 +104,22 @@ class _CustomerOrderListPageState extends State<CustomerOrderListPage> with Sing
                               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
                               border: InputBorder.none,
                               isDense: true,
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: Icon(Icons.clear, color: Colors.grey[500], size: 18),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _triggerSearch();
+                                      },
+                                    )
+                                  : null,
                             ),
                             style: const TextStyle(fontSize: 13),
                             onChanged: (_) => _triggerSearch(),
                           ),
                         ),
-                        if (_searchController.text.isNotEmpty)
-                          GestureDetector(
-                            onTap: () {
-                              _searchController.clear();
-                              _triggerSearch();
-                            },
-                            child: Icon(Icons.clear, color: Colors.grey[500], size: 18),
-                          ),
                       ],
                     ),
                   ),
@@ -207,9 +216,11 @@ class _CustomerOrderListPageState extends State<CustomerOrderListPage> with Sing
     return ListView.separated(
       padding: const EdgeInsets.all(24),
       itemCount: orders.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final order = orders[index];
+        final orderBloc = context.read<OrderBloc>();
+        final authBloc = context.read<AuthBloc>();
 
         return CustomerOrderCard(
           order: order,
@@ -221,9 +232,9 @@ class _CustomerOrderListPageState extends State<CustomerOrderListPage> with Sing
               ),
             ).then((_) {
               // Làm mới danh sách đơn hàng khi quay lại
-              final authState = context.read<AuthBloc>().state;
+              final authState = authBloc.state;
               if (authState is Authenticated) {
-                context.read<OrderBloc>().add(LoadOrdersEvent(customerId: authState.user.id ?? ''));
+                orderBloc.add(LoadOrdersEvent(customerId: authState.user.id ?? ''));
               }
             });
           },

@@ -59,7 +59,7 @@ class WarehouseInventoryList extends StatelessWidget {
               child: Image.network(
                 item.product!.imageUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Icon(Icons.eco),
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.eco),
               ),
             )
           : const Icon(Icons.eco, color: AppColors.primaryColor),

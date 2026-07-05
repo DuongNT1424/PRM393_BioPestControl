@@ -27,6 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   BuildContext? _loadingDialogContext;
+  bool _isLoadingDialogOpen = false;
 
   @override
   void initState() {
@@ -77,21 +78,28 @@ class _ProfilePageState extends State<ProfilePage> {
           return BlocListener<ProfileBloc, ProfileState>(
             listener: (context, state) {
               if (state is ProfileLoading) {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (dialogContext) {
-                    _loadingDialogContext = dialogContext;
-                    return const Center(
-                      child: CircularProgressIndicator(color: AppColors.primaryColor),
-                    );
-                  },
-                );
+                // Chỉ show dialog nếu chưa có dialog nào đang hiển thị
+                if (!_isLoadingDialogOpen) {
+                  _isLoadingDialogOpen = true;
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (dialogContext) {
+                      _loadingDialogContext = dialogContext;
+                      return const Center(
+                        child: CircularProgressIndicator(color: AppColors.primaryColor),
+                      );
+                    },
+                  ).then((_) {
+                    _isLoadingDialogOpen = false;
+                  });
+                }
               } else {
                 // Ẩn Loading dialog nếu đang hiển thị
-                if (_loadingDialogContext != null) {
+                if (_isLoadingDialogOpen && _loadingDialogContext != null) {
                   Navigator.of(_loadingDialogContext!).pop();
                   _loadingDialogContext = null;
+                  _isLoadingDialogOpen = false;
                 }
               }
 
@@ -179,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               border: Border.all(color: AppColors.primaryColor, width: 3),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primaryColor.withOpacity(0.1),
+                                  color: AppColors.primaryColor.withValues(alpha: 0.1),
                                   blurRadius: 16,
                                   spreadRadius: 4,
                                 ),
@@ -187,7 +195,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                             child: CircleAvatar(
                               radius: 54,
-                              backgroundColor: AppColors.primaryColor.withOpacity(0.08),
+                              backgroundColor: AppColors.primaryColor.withValues(alpha: 0.08),
                               child: Text(
                                 _currentUser.name?.isNotEmpty == true
                                     ? _currentUser.name![0].toUpperCase()
@@ -225,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryColor.withOpacity(0.1),
+                        color: AppColors.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(

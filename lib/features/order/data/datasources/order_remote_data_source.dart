@@ -87,6 +87,10 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       updateData['paymentStatus'] = paymentStatus;
     }
 
+    if (deliveryStatus == 'Delivered') {
+      updateData['deliveredAt'] = Timestamp.fromDate(DateTime.now());
+    }
+
     await firestore.collection('orders').doc(orderId).update(updateData);
   }
 }

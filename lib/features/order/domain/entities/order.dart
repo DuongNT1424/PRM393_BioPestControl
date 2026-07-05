@@ -35,6 +35,7 @@ class OrderEntity extends Equatable {
   final String paymentStatus; // "Pending" (Chờ thanh toán), "Paid" (Đã thanh toán), "Failed" (Thất bại)
   final String deliveryStatus; // "Pending" (Chờ xác nhận), "Preparing" (Chuẩn bị), "Delivering" (Đang giao), "Delivered" (Đã giao), "Cancelled" (Đã hủy)
   final DateTime createdAt;
+  final DateTime? deliveredAt;
 
   const OrderEntity({
     required this.id,
@@ -48,6 +49,7 @@ class OrderEntity extends Equatable {
     required this.paymentStatus,
     required this.deliveryStatus,
     required this.createdAt,
+    this.deliveredAt,
   });
 
   /// Tạo một bản sao mới với một vài thuộc tính thay đổi (dùng khi cập nhật trạng thái)
@@ -63,6 +65,7 @@ class OrderEntity extends Equatable {
     String? paymentStatus,
     String? deliveryStatus,
     DateTime? createdAt,
+    DateTime? deliveredAt,
   }) {
     return OrderEntity(
       id: id ?? this.id,
@@ -76,6 +79,7 @@ class OrderEntity extends Equatable {
       paymentStatus: paymentStatus ?? this.paymentStatus,
       deliveryStatus: deliveryStatus ?? this.deliveryStatus,
       createdAt: createdAt ?? this.createdAt,
+      deliveredAt: deliveredAt ?? this.deliveredAt,
     );
   }
 
@@ -92,5 +96,6 @@ class OrderEntity extends Equatable {
         paymentStatus,
         deliveryStatus,
         createdAt,
+        deliveredAt,
       ];
 }

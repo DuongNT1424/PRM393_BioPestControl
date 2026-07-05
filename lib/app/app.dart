@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
       ),
       useMaterial3: true,
       // Ép tất cả các Dialog và Menu dùng nền trắng nhất quán
-      dialogBackgroundColor: AppColors.backgroundColor,
+      dialogTheme: const DialogThemeData(backgroundColor: AppColors.backgroundColor),
       dropdownMenuTheme: DropdownMenuThemeData(
         menuStyle: MenuStyle(
           backgroundColor: WidgetStateProperty.all(AppColors.surfaceColor),

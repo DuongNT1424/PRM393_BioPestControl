@@ -28,7 +28,7 @@ class StaffCard extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           radius: 25,
-          backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+          backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
           child: Text(
             staff.name.isNotEmpty ? staff.name[0].toUpperCase() : '?',
             style: const TextStyle(

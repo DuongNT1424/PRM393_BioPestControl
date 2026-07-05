@@ -39,10 +39,16 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
     _tabController.addListener(() {
       setState(() {});
     });
+    _searchController.addListener(_onSearchTextChanged);
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
     _searchController.dispose();
     _tabController.dispose();
     _debounce?.cancel();
@@ -95,6 +101,7 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
   }
 
   void _showFeedbackForm(BuildContext context, [FeedbackEntity? feedback]) async {
+    final feedbackBloc = context.read<FeedbackBloc>();
     final result = await showDialog<FeedbackEntity>(
       context: context,
       barrierDismissible: false,
@@ -106,14 +113,15 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
 
     if (result != null && mounted) {
       if (feedback == null) {
-        context.read<FeedbackBloc>().add(CreateFeedbackEvent(result));
+        feedbackBloc.add(CreateFeedbackEvent(result));
       } else {
-        context.read<FeedbackBloc>().add(UpdateFeedbackEvent(result));
+        feedbackBloc.add(UpdateFeedbackEvent(result));
       }
     }
   }
 
   void _showReplyForm(BuildContext context, FeedbackEntity feedback) async {
+    final feedbackBloc = context.read<FeedbackBloc>();
     final result = await showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -123,7 +131,7 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
     );
 
     if (result != null && mounted) {
-      context.read<FeedbackBloc>().add(
+      feedbackBloc.add(
             ReplyFeedbackEvent(
               feedbackId: feedback.id,
               replyContent: result,
@@ -160,8 +168,8 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final isCustomer = widget.user.role == 'Customer';
-    final isStaffOrAdmin = widget.user.role == 'Staff' || widget.user.role == 'Admin';
+    final isCustomer = widget.user.role?.toLowerCase() == 'customer';
+    final isStaffOrAdmin = widget.user.role?.toLowerCase() == 'staff' || widget.user.role?.toLowerCase() == 'admin';
     final bool isAdmin = widget.user.role?.toLowerCase() == 'admin';
 
     return BlocProvider(
@@ -283,7 +291,7 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
                             ),
                             Switch.adaptive(
                               value: _onlyMyFeedbacks,
-                              activeColor: AppColors.primaryColor,
+                              activeTrackColor: AppColors.primaryColor,
                               onChanged: (value) {
                                 setState(() {
                                   _onlyMyFeedbacks = value;

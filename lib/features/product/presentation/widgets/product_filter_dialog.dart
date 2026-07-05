@@ -37,7 +37,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           DropdownButtonFormField<int>(
-            value: _tempCategoryId,
+            initialValue: _tempCategoryId,
             decoration: const InputDecoration(labelText: 'Danh mục'),
             items: [
               const DropdownMenuItem(value: null, child: Text('Tất cả')),
@@ -50,7 +50,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<bool>(
-            value: _tempIsActive,
+            initialValue: _tempIsActive,
             decoration: const InputDecoration(labelText: 'Trạng thái'),
             items: const [
               DropdownMenuItem(value: null, child: Text('Tất cả')),

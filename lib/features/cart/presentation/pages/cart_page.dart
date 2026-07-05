@@ -63,7 +63,7 @@ class CartPage extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.all(24),
                   itemCount: state.items.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  separatorBuilder: (context, index) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     return CartItemCard(item: state.items[index]);
                   },
@@ -75,7 +75,7 @@ class CartPage extends StatelessWidget {
                   color: Colors.white,
                   border: Border(top: BorderSide(color: Colors.grey[200]!)),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5)),
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5)),
                   ],
                 ),
                 child: SafeArea(

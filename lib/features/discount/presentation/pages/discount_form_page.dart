@@ -102,7 +102,7 @@ class _DiscountFormPageState extends State<DiscountFormPage> {
                       subtitle: const Text('This will override specific selections'),
                       value: _isAllProducts,
                       onChanged: (v) => setState(() => _isAllProducts = v),
-                      activeColor: AppColors.primaryColor,
+                      activeThumbColor: AppColors.primaryColor,
                     ),
                     const SizedBox(height: 8),
 
@@ -187,7 +187,7 @@ class _DiscountFormPageState extends State<DiscountFormPage> {
                       title: const Text('Active Status'),
                       value: _isActive,
                       onChanged: (v) => setState(() => _isActive = v),
-                      activeColor: AppColors.primaryColor,
+                      activeThumbColor: AppColors.primaryColor,
                     ),
                     
                     const SizedBox(height: 32),

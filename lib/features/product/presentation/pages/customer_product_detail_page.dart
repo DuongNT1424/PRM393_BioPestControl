@@ -99,12 +99,18 @@ class CustomerProductDetailPage extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor.withOpacity(0.1),
+                          color: product.stock > 0
+                              ? AppColors.primaryColor.withValues(alpha: 0.1)
+                              : Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          'Kho: ${product.stock}',
-                          style: const TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
+                          product.stock > 0 ? 'Kho: ${product.stock}' : 'Hết hàng',
+                          style: TextStyle(
+                            color: product.stock > 0 ? AppColors.primaryColor : Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -186,7 +192,7 @@ class CustomerProductDetailPage extends StatelessWidget {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: reviews.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        separatorBuilder: (context, index) => const SizedBox(height: 12),
                         itemBuilder: (context, idx) {
                           final r = reviews[idx];
                           final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
@@ -228,9 +234,9 @@ class CustomerProductDetailPage extends StatelessWidget {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primaryColor.withOpacity(0.04),
+                                      color: AppColors.primaryColor.withValues(alpha: 0.04),
                                       borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: AppColors.primaryColor.withOpacity(0.1)),
+                                      border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.1)),
                                     ),
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -315,20 +321,25 @@ class CustomerProductDetailPage extends StatelessWidget {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: () {
-                  context.read<CartBloc>().add(AddToCartEvent(product));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Đã thêm ${product.name} vào giỏ hàng'), duration: const Duration(seconds: 1)),
-                  );
-                },
+                onPressed: product.stock > 0
+                    ? () {
+                        context.read<CartBloc>().add(AddToCartEvent(product));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Đã thêm ${product.name} vào giỏ hàng'), duration: const Duration(seconds: 1)),
+                        );
+                      }
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
+                  backgroundColor: product.stock > 0 ? AppColors.primaryColor : Colors.grey[400],
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Thêm vào giỏ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                child: Text(
+                  product.stock > 0 ? 'Thêm vào giỏ' : 'Hết hàng',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ),
             ),
           ],

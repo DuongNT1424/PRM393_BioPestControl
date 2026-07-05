@@ -69,7 +69,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       items: orderItems,
       totalAmount: cartState.totalPrice,
       paymentMethod: _paymentMethod,
-      paymentStatus: _paymentMethod == 'PayOS' ? 'Pending' : 'Pending', // COD hoặc PayOS đều chờ xác nhận/thanh toán
+      paymentStatus: 'Pending', // Cả COD và PayOS đều khởi tạo trạng thái chờ thanh toán
       deliveryStatus: 'Pending', // Chờ xác nhận đơn hàng
       createdAt: DateTime.now(),
     );
@@ -197,32 +197,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               color: const Color(0xFFF7F7F7),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Column(
-                              children: [
-                                RadioListTile<String>(
-                                  title: const Text('Thanh toán khi nhận hàng (COD)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                                  value: 'COD',
-                                  groupValue: _paymentMethod,
-                                  activeColor: AppColors.primaryColor,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _paymentMethod = val!;
-                                    });
-                                  },
-                                ),
-                                const Divider(height: 1),
-                                RadioListTile<String>(
-                                  title: const Text('Chuyển khoản QR code nhanh (PayOS)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                                  value: 'PayOS',
-                                  groupValue: _paymentMethod,
-                                  activeColor: AppColors.primaryColor,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _paymentMethod = val!;
-                                    });
-                                  },
-                                ),
-                              ],
+                            child: RadioGroup<String>(
+                              groupValue: _paymentMethod,
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() {
+                                    _paymentMethod = val;
+                                  });
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  RadioListTile<String>(
+                                    title: const Text('Thanh toán khi nhận hàng (COD)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                    value: 'COD',
+                                    activeColor: AppColors.primaryColor,
+                                  ),
+                                  const Divider(height: 1),
+                                  RadioListTile<String>(
+                                    title: const Text('Chuyển khoản QR code nhanh (PayOS)', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                    value: 'PayOS',
+                                    activeColor: AppColors.primaryColor,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -260,7 +258,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         color: Colors.white,
                         border: Border(top: BorderSide(color: Colors.grey[100]!)),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, -5)),
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, -5)),
                         ],
                       ),
                       child: SafeArea(

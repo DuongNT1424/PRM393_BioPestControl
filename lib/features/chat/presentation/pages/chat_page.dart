@@ -227,7 +227,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -284,7 +284,7 @@ class _ChatPageState extends State<ChatPage> {
               height: 12,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor.withOpacity(0.6)),
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor.withValues(alpha: 0.6)),
               ),
             ),
           ],
@@ -300,7 +300,7 @@ class _ChatPageState extends State<ChatPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),

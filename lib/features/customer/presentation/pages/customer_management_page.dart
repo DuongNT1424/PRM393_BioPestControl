@@ -13,7 +13,6 @@ import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
-import 'package:prm393_biopestcontrol/app/app.dart';
 
 /// [CustomerManagementPage] là giao diện chính để Admin/Staff quản lý khách hàng.
 /// Tích hợp các tính năng: Xem danh sách, Tìm kiếm, Lọc và Điều hướng.
@@ -27,7 +26,23 @@ class CustomerManagementPage extends StatefulWidget {
 
 class _CustomerManagementPageState extends State<CustomerManagementPage> {
   final TextEditingController _searchController = TextEditingController();
-  bool? _isLockedFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchTextChanged);
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +62,7 @@ class _CustomerManagementPageState extends State<CustomerManagementPage> {
                 PopupMenuButton<bool?>(
                   icon: const Icon(Icons.filter_list),
                   onSelected: (value) {
-                    setState(() {
-                      _isLockedFilter = value;
-                    });
+                    setState(() {});
                     context.read<CustomerBloc>().add(FilterCustomers(isLocked: value));
                   },
                   itemBuilder: (context) => [
@@ -147,19 +160,19 @@ class _CustomerManagementPageState extends State<CustomerManagementPage> {
   }
 
   void _navigateToDetail(BuildContext context, CustomerEntity customer) {
+    final customerBloc = context.read<CustomerBloc>();
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CustomerDetailPage(customerId: customer.id),
       ),
     ).then((_) {
-      if (mounted) {
-         context.read<CustomerBloc>().add(LoadCustomers());
-      }
+      customerBloc.add(LoadCustomers());
     });
   }
 
   void _navigateToForm(BuildContext context, {CustomerEntity? customer}) async {
+    final customerBloc = context.read<CustomerBloc>();
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -167,8 +180,8 @@ class _CustomerManagementPageState extends State<CustomerManagementPage> {
       ),
     );
 
-    if (result != null && mounted) {
-      context.read<CustomerBloc>().add(UpdateCustomer(result as CustomerEntity));
+    if (result != null) {
+      customerBloc.add(UpdateCustomer(result as CustomerEntity));
     }
   }
 }

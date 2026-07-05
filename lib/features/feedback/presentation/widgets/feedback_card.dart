@@ -59,13 +59,13 @@ class FeedbackCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: feedback.status == 'replied'
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: feedback.status == 'replied'
-                          ? Colors.green.withOpacity(0.5)
-                          : Colors.orange.withOpacity(0.5),
+                          ? Colors.green.withValues(alpha: 0.5)
+                          : Colors.orange.withValues(alpha: 0.5),
                       width: 0.8,
                     ),
                   ),
@@ -138,10 +138,10 @@ class FeedbackCard extends StatelessWidget {
               margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(0.04),
+                color: AppColors.primaryColor.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppColors.primaryColor.withOpacity(0.15),
+                  color: AppColors.primaryColor.withValues(alpha: 0.15),
                   width: 1,
                 ),
               ),

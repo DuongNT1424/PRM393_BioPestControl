@@ -28,7 +28,7 @@ class ProductDetailPage extends StatelessWidget {
       builder: (context, state) {
         ProductEntity currentProduct = product;
         if (state is ProductLoaded) {
-          final found = state.products.firstWhere(
+          final found = state.products.cast<ProductEntity>().firstWhere(
             (p) => p.id == product.id,
             orElse: () => product,
           );
@@ -71,7 +71,7 @@ class ProductDetailPage extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryColor.withOpacity(0.1),
+                              color: AppColors.primaryColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(

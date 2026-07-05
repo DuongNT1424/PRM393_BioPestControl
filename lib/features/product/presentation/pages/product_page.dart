@@ -36,7 +36,18 @@ class _ProductPageState extends State<ProductPage> {
   Timer? _debounce;
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchTextChanged);
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
+  @override
   void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
     _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
@@ -84,13 +95,15 @@ class _ProductPageState extends State<ProductPage> {
                   decoration: InputDecoration(
                     hintText: 'Tìm kiếm sản phẩm...',
                     prefixIcon: const Icon(Icons.search, color: AppColors.primaryColor),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        context.read<ProductBloc>().add(LoadProductsEvent());
-                      },
-                    ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              context.read<ProductBloc>().add(LoadProductsEvent());
+                            },
+                          )
+                        : null,
                     filled: true,
                     fillColor: const Color(0xFFF5F5F5),
                     border: OutlineInputBorder(
@@ -207,6 +220,7 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _navigateToForm(BuildContext context, {ProductEntity? product}) {
+    final productBloc = context.read<ProductBloc>();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -214,9 +228,9 @@ class _ProductPageState extends State<ProductPage> {
           product: product,
           onSave: (p) {
             if (product == null) {
-              context.read<ProductBloc>().add(AddProductEvent(p));
+              productBloc.add(AddProductEvent(p));
             } else {
-              context.read<ProductBloc>().add(UpdateProductEvent(p));
+              productBloc.add(UpdateProductEvent(p));
             }
           },
         ),
@@ -225,6 +239,7 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _showFilterDialog(BuildContext context) {
+    final productBloc = context.read<ProductBloc>();
     final categoryState = context.read<CategoryBloc>().state;
     List<CategoryEntity> categories = [];
     if (categoryState is CategoryLoaded) {
@@ -242,7 +257,7 @@ class _ProductPageState extends State<ProductPage> {
       if (result != null) {
         _selectedCategoryId = result['categoryId'];
         _selectedIsActive = result['isActive'];
-        context.read<ProductBloc>().add(FilterProductEvent(
+        productBloc.add(FilterProductEvent(
               categoryId: _selectedCategoryId,
               isActive: _selectedIsActive,
             ));

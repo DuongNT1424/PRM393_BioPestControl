@@ -15,7 +15,7 @@ class GoogleAuthButton extends StatelessWidget {
       },
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(double.infinity, 56),
-        side: BorderSide(color: AppColors.primaryColor.withOpacity(0.1)),
+        side: BorderSide(color: AppColors.primaryColor.withValues(alpha: 0.1)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),

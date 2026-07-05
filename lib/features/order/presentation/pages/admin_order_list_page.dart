@@ -23,13 +23,19 @@ class _AdminOrderListPageState extends State<AdminOrderListPage> with SingleTick
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _searchController.addListener(_onSearchTextChanged);
     
     // Tải toàn bộ đơn hàng của hệ thống (Staff/Admin không truyền customerId)
     context.read<OrderBloc>().add(const LoadOrdersEvent());
   }
 
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -81,19 +87,22 @@ class _AdminOrderListPageState extends State<AdminOrderListPage> with SingleTick
                           hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
                           border: InputBorder.none,
                           isDense: true,
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(Icons.clear, color: Colors.grey[500], size: 18),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _triggerSearch();
+                                  },
+                                )
+                              : null,
                         ),
                         style: const TextStyle(fontSize: 13),
                         onChanged: (_) => _triggerSearch(),
                       ),
                     ),
-                    if (_searchController.text.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          _searchController.clear();
-                          _triggerSearch();
-                        },
-                        child: Icon(Icons.clear, color: Colors.grey[500], size: 18),
-                      ),
                   ],
                 ),
               ),
@@ -131,7 +140,8 @@ class _AdminOrderListPageState extends State<AdminOrderListPage> with SingleTick
                   }
 
                   if (state is OrdersLoaded) {
-                    final allOrders = state.orders;
+                    final allOrders = List<OrderEntity>.from(state.orders)
+                      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
                     return TabBarView(
                       controller: _tabController,
@@ -177,9 +187,10 @@ class _AdminOrderListPageState extends State<AdminOrderListPage> with SingleTick
     return ListView.separated(
       padding: const EdgeInsets.all(24),
       itemCount: orders.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final order = orders[index];
+        final orderBloc = context.read<OrderBloc>();
 
         return AdminOrderCard(
           order: order,
@@ -191,7 +202,7 @@ class _AdminOrderListPageState extends State<AdminOrderListPage> with SingleTick
               ),
             ).then((_) {
               // Làm mới danh sách đơn hàng sau khi Admin thao tác xong quay lại
-              context.read<OrderBloc>().add(const LoadOrdersEvent());
+              orderBloc.add(const LoadOrdersEvent());
             });
           },
         );

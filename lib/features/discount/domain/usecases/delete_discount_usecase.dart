@@ -7,6 +7,7 @@ class DeleteDiscountUseCase implements UseCase<void, int> {
   final DiscountRepository repository;
   DeleteDiscountUseCase(this.repository);
 
+  @override
   Future<Either<Failure, void>> call(int id) async {
     return await repository.deleteDiscount(id);
   }

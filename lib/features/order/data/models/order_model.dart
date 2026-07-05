@@ -60,6 +60,7 @@ class OrderModel extends OrderEntity {
     required super.paymentStatus,
     required super.deliveryStatus,
     required super.createdAt,
+    super.deliveredAt,
   });
 
   /// Chuyển đổi từ Firestore DocumentSnapshot sang [OrderModel]
@@ -79,6 +80,7 @@ class OrderModel extends OrderEntity {
       paymentStatus: data['paymentStatus'] ?? 'Pending',
       deliveryStatus: data['deliveryStatus'] ?? 'Pending',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      deliveredAt: (data['deliveredAt'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -95,6 +97,7 @@ class OrderModel extends OrderEntity {
       'paymentStatus': paymentStatus,
       'deliveryStatus': deliveryStatus,
       'createdAt': Timestamp.fromDate(createdAt),
+      'deliveredAt': deliveredAt != null ? Timestamp.fromDate(deliveredAt!) : null,
     };
   }
 
@@ -112,6 +115,7 @@ class OrderModel extends OrderEntity {
       paymentStatus: entity.paymentStatus,
       deliveryStatus: entity.deliveryStatus,
       createdAt: entity.createdAt,
+      deliveredAt: entity.deliveredAt,
     );
   }
 }

@@ -275,7 +275,7 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
                       ),
                       if (isLoading)
                         Container(
-                          color: Colors.black.withOpacity(0.15),
+                          color: Colors.black.withValues(alpha: 0.15),
                           child: const Center(
                             child: CircularProgressIndicator(color: AppColors.primaryColor),
                           ),
@@ -373,9 +373,9 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: AppColors.primaryColor.withOpacity(0.06),
+        color: AppColors.primaryColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryColor.withOpacity(0.15)),
+        border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.15)),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,7 +478,7 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
                       _selectedCustomer = null;
                     });
                   },
-                  selectedColor: AppColors.primaryColor.withOpacity(0.12),
+                  selectedColor: AppColors.primaryColor.withValues(alpha: 0.12),
                   backgroundColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -501,7 +501,7 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
                       _sendToAll = false;
                     });
                   },
-                  selectedColor: AppColors.primaryColor.withOpacity(0.12),
+                  selectedColor: AppColors.primaryColor.withValues(alpha: 0.12),
                   backgroundColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -530,7 +530,7 @@ class _SendNotificationPageState extends State<SendNotificationPage> {
                     ),
                   )
                 : DropdownButtonFormField<CustomerEntity>(
-                    value: _selectedCustomer,
+                    initialValue: _selectedCustomer,
                     decoration: InputDecoration(
                       hintText: 'Chọn khách hàng...',
                       hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),

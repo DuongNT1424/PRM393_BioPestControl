@@ -8,6 +8,7 @@ class UpdateDiscountUseCase implements UseCase<void, DiscountEntity> {
   final DiscountRepository repository;
   UpdateDiscountUseCase(this.repository);
 
+  @override
   Future<Either<Failure, void>> call(DiscountEntity discount) async {
     return await repository.updateDiscount(discount);
   }

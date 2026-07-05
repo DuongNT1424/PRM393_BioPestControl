@@ -27,6 +27,8 @@ class CustomerOrderDetailPage extends StatefulWidget {
 }
 
 class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
+  bool _needsRefresh = false;
+
   @override
   void initState() {
     super.initState();
@@ -68,7 +70,13 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
       create: (context) => di.sl<OrderBloc>()..add(LoadOrderDetailEvent(widget.orderId)),
       child: Builder(
         builder: (context) {
-          return Scaffold(
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) return;
+              Navigator.of(context).pop(_needsRefresh);
+            },
+            child: Scaffold(
             backgroundColor: const Color(0xFFF8FAFC),
             appBar: AppBar(
               title: const Text('Chi tiết đơn hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -83,8 +91,10 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.message), backgroundColor: AppColors.primaryColor),
                   );
-                  // Tải lại chi tiết đơn hàng sau khi hủy thành công
+                  // Tải lại chi tiết đơn hàng sau khi cập nhật thành công
                   context.read<OrderBloc>().add(LoadOrderDetailEvent(widget.orderId));
+                  // Đặt cờ needsRefresh = true để notify parent khi pop
+                  _needsRefresh = true;
                 }
                 if (state is OrderError) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -212,7 +222,7 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
                                     shrinkWrap: true,
                                     physics: const NeverScrollableScrollPhysics(),
                                     itemCount: order.items.length,
-                                    separatorBuilder: (_, __) => const Padding(
+                                    separatorBuilder: (context, index) => const Padding(
                                       padding: EdgeInsets.symmetric(vertical: 12),
                                       child: Divider(height: 1),
                                     ),
@@ -317,7 +327,7 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: (order.paymentStatus == 'Paid' ? AppColors.primaryColor : Colors.orange).withOpacity(0.08),
+                                          color: (order.paymentStatus == 'Paid' ? AppColors.primaryColor : Colors.orange).withValues(alpha: 0.08),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Text(
@@ -377,7 +387,8 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
                 return const Center(child: Text('Không tìm thấy dữ liệu đơn hàng.'));
               },
             ),
-          );
+          ), // đóng Scaffold
+          ); // đóng PopScope
         }
       ),
     );
@@ -430,7 +441,7 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: isActive ? AppColors.primaryColor.withOpacity(0.08) : Colors.transparent,
+                      color: isActive ? AppColors.primaryColor.withValues(alpha: 0.08) : Colors.transparent,
                       shape: BoxShape.circle,
                       border: Border.all(color: isActive ? AppColors.primaryColor : Colors.grey[300]!, width: 2),
                     ),
@@ -473,7 +484,7 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: Colors.purple.withOpacity(0.08),
+            color: Colors.purple.withValues(alpha: 0.08),
             shape: BoxShape.circle,
           ),
           child: const Center(
@@ -535,16 +546,16 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
     }
 
     // Nếu deliveryStatus == 'Delivered'
-    final difference = DateTime.now().difference(order.createdAt).inDays;
+    final difference = DateTime.now().difference(order.deliveredAt ?? order.createdAt).inDays;
     final isPaid = order.paymentStatus == 'Paid';
     final canReturn = isPaid && difference <= 7;
 
     if (canReturn) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.purple.withOpacity(0.04),
+          color: Colors.purple.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.purple.withOpacity(0.15)),
+          border: Border.all(color: Colors.purple.withValues(alpha: 0.15)),
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -661,9 +672,9 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.primaryColor.withOpacity(0.04),
+        color: AppColors.primaryColor.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primaryColor.withOpacity(0.15)),
+        border: Border.all(color: AppColors.primaryColor.withValues(alpha: 0.15)),
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -728,6 +739,8 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
       return;
     }
 
+    final messenger = ScaffoldMessenger.of(context);
+
     final result = await showDialog<FeedbackEntity>(
       context: context,
       barrierDismissible: false,
@@ -744,7 +757,7 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
       subscription = feedbackBloc.stream.listen((state) {
         if (state is FeedbackActionSuccess) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            messenger.showSnackBar(
               SnackBar(
                 content: Text(state.message),
                 backgroundColor: AppColors.primaryColor,
@@ -755,7 +768,7 @@ class _CustomerOrderDetailPageState extends State<CustomerOrderDetailPage> {
           feedbackBloc.close();
         } else if (state is FeedbackError) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            messenger.showSnackBar(
               SnackBar(
                 content: Text('Lỗi: ${state.message}'),
                 backgroundColor: Colors.redAccent,

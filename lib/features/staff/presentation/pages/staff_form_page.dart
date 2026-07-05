@@ -136,7 +136,7 @@ class _StaffFormPageState extends State<StaffFormPage> {
 
   Widget _buildRoleDropdown() {
     return DropdownButtonFormField<String>(
-      value: _selectedRole,
+      initialValue: _selectedRole,
       decoration: InputDecoration(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         prefixIcon: const Icon(Icons.badge_outlined, color: AppColors.primaryColor),

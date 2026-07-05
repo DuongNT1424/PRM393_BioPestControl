@@ -55,7 +55,7 @@ class NotificationCard extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 24.0),
         decoration: BoxDecoration(
-          color: Colors.redAccent.withOpacity(0.9),
+          color: Colors.redAccent.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: const Row(
@@ -81,15 +81,15 @@ class NotificationCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12.0),
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: notification.isRead ? Colors.white : bgColor.withOpacity(0.6),
+            color: notification.isRead ? Colors.white : bgColor.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(16.0),
             border: Border.all(
-              color: notification.isRead ? Colors.grey.shade100 : primaryColor.withOpacity(0.3),
+              color: notification.isRead ? Colors.grey.shade100 : primaryColor.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
+                color: Colors.black.withValues(alpha: 0.02),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),

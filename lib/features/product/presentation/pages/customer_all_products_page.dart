@@ -156,7 +156,7 @@ class CustomerAllProductsPage extends StatelessWidget {
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported, color: Colors.grey),
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, color: Colors.grey),
                 ),
               ),
             ),
@@ -177,19 +177,24 @@ class CustomerAllProductsPage extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              onPressed: () {
-                context.read<CartBloc>().add(AddToCartEvent(product));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Đã thêm ${product.name} vào giỏ hàng'), duration: const Duration(seconds: 1)),
-                );
-              },
+              onPressed: product.stock > 0
+                  ? () {
+                      context.read<CartBloc>().add(AddToCartEvent(product));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Đã thêm ${product.name} vào giỏ hàng'), duration: const Duration(seconds: 1)),
+                      );
+                    }
+                  : null,
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryColor,
-                side: const BorderSide(color: AppColors.primaryColor),
+                foregroundColor: product.stock > 0 ? AppColors.primaryColor : Colors.grey,
+                side: BorderSide(color: product.stock > 0 ? AppColors.primaryColor : Colors.grey[300]!),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 padding: const EdgeInsets.symmetric(vertical: 8),
               ),
-              child: const Text('THÊM', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              child: Text(
+                product.stock > 0 ? 'THÊM' : 'HẾT',
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],

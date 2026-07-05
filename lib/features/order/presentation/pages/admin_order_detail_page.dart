@@ -159,7 +159,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
                                     shrinkWrap: true,
                                     physics: const NeverScrollableScrollPhysics(),
                                     itemCount: order.items.length,
-                                    separatorBuilder: (_, __) => const Padding(
+                                    separatorBuilder: (context, index) => const Padding(
                                       padding: EdgeInsets.symmetric(vertical: 12),
                                       child: Divider(height: 1),
                                     ),
@@ -176,7 +176,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
                                               width: 45,
                                               height: 45,
                                               fit: BoxFit.cover,
-                                              errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 45, color: Colors.grey),
+                                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.image, size: 45, color: Colors.grey),
                                             ),
                                           ),
                                           const SizedBox(width: 12),
@@ -316,7 +316,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
         border: Border.all(color: Colors.grey[100]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.01),
+            color: Colors.black.withValues(alpha: 0.01),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -335,9 +335,9 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.05),
+              color: statusColor.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: statusColor.withOpacity(0.15)),
+              border: Border.all(color: statusColor.withValues(alpha: 0.15)),
             ),
             child: Row(
               children: [
@@ -513,7 +513,7 @@ class _AdminOrderDetailPageState extends State<AdminOrderDetailPage> {
                 icon: const Icon(Icons.check, size: 14),
                 label: const Text('XÁC NHẬN ĐÃ THANH TOÁN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                  backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
                   foregroundColor: AppColors.primaryColor,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

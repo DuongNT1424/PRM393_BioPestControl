@@ -9,9 +9,16 @@ import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
 import 'package:intl/intl.dart';
 
-class CustomerDetailPage extends StatelessWidget {
+class CustomerDetailPage extends StatefulWidget {
   final String customerId;
   const CustomerDetailPage({super.key, required this.customerId});
+
+  @override
+  State<CustomerDetailPage> createState() => _CustomerDetailPageState();
+}
+
+class _CustomerDetailPageState extends State<CustomerDetailPage> {
+  String get customerId => widget.customerId;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +73,7 @@ class CustomerDetailPage extends StatelessWidget {
                       Center(
                         child: CircleAvatar(
                           radius: 50,
-                          backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+                          backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
                           child: Text(
                             customer.name.substring(0, 1).toUpperCase(),
                             style: const TextStyle(fontSize: 40, color: AppColors.primaryColor, fontWeight: FontWeight.bold),
@@ -159,7 +166,8 @@ class CustomerDetailPage extends StatelessWidget {
       ),
     );
 
-    if (result != null) {
+    if (result != null && mounted) {
+      // ignore: use_build_context_synchronously
       context.read<CustomerBloc>().add(UpdateCustomer(result as CustomerEntity));
     }
   }

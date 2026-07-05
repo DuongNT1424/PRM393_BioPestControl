@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
 
 /// [ProductDetailHeader] hiển thị hình ảnh sản phẩm trong trang chi tiết.
 class ProductDetailHeader extends StatelessWidget {
@@ -75,7 +74,7 @@ class ProductStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: isActive ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+        color: isActive ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(

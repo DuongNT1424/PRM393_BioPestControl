@@ -25,6 +25,23 @@ class _StaffPageState extends State<StaffPage> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchTextChanged);
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchTextChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => di.sl<StaffBloc>()..add(LoadStaffsEvent()),
@@ -60,6 +77,15 @@ class _StaffPageState extends State<StaffPage> {
                       ),
                       filled: true,
                       fillColor: Colors.grey[100],
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                context.read<StaffBloc>().add(LoadStaffsEvent());
+                              },
+                            )
+                          : null,
                     ),
                     onChanged: (query) {
                       context.read<StaffBloc>().add(SearchStaffsEvent(query));

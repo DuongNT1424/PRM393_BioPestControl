@@ -58,7 +58,7 @@ class StatisticsLocalDataSourceImpl implements StatisticsLocalDataSource {
         for (final item in itemsList) {
           if (item is Map<String, dynamic>) {
             final quantity = item['quantity'] ?? 0;
-            totalSold += quantity as int;
+            totalSold += (quantity as num).toInt();
           }
         }
       }

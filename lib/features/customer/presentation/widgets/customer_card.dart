@@ -26,7 +26,7 @@ class CustomerCard extends StatelessWidget {
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+          backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
           child: Text(
             customer.name.substring(0, 1).toUpperCase(),
             style: const TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.bold),

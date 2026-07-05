@@ -9,6 +9,7 @@ class UpdateCustomerUseCase implements UseCase<void, CustomerEntity> {
 
   UpdateCustomerUseCase(this.repository);
 
+  @override
   Future<Either<Failure, void>> call(CustomerEntity customer) async {
     return await repository.updateCustomer(customer);
   }

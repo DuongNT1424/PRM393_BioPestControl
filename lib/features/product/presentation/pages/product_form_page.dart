@@ -130,7 +130,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               SwitchListTile(
                 title: const Text('Đang kinh doanh', style: TextStyle(fontWeight: FontWeight.bold)),
                 value: _isActive,
-                activeColor: AppColors.primaryColor,
+                activeThumbColor: AppColors.primaryColor,
                 onChanged: (val) => setState(() => _isActive = val),
               ),
               const SizedBox(height: 32),

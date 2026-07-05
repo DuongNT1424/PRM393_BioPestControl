@@ -142,9 +142,9 @@ class ManagementPage extends StatelessWidget {
                             color: AppColors.primaryColor,
                           ),
                         if (!isAdmin)
-                          const ManagementStatCard(
+                          ManagementStatCard(
                             title: 'Sản phẩm',
-                            value: '145',
+                            value: stats.totalLinkedProducts.toString(),
                             icon: Icons.eco,
                             color: AppColors.primaryColor,
                           ),
