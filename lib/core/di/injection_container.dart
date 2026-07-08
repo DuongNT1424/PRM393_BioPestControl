@@ -128,6 +128,17 @@ import 'package:prm393_biopestcontrol/features/news/domain/usecases/search_news_
 import 'package:prm393_biopestcontrol/features/news/domain/usecases/update_news_usecase.dart';
 import 'package:prm393_biopestcontrol/features/news/presentation/bloc/news_bloc.dart';
 
+// Features - Chat
+import 'package:prm393_biopestcontrol/features/chat/data/datasources/chat_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/chat/data/repositories/chat_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/chat/domain/repositories/chat_repository.dart';
+import 'package:prm393_biopestcontrol/features/chat/domain/usecases/get_chats.dart';
+import 'package:prm393_biopestcontrol/features/chat/domain/usecases/search_chats.dart';
+import 'package:prm393_biopestcontrol/features/chat/domain/usecases/get_messages.dart';
+import 'package:prm393_biopestcontrol/features/chat/domain/usecases/send_message.dart';
+import 'package:prm393_biopestcontrol/features/chat/domain/usecases/delete_message.dart';
+import 'package:prm393_biopestcontrol/features/chat/presentation/bloc/chat_bloc.dart';
+
 // Features - Feedback
 import 'package:prm393_biopestcontrol/features/feedback/data/datasources/feedback_remote_data_source.dart';
 import 'package:prm393_biopestcontrol/features/feedback/data/repositories/feedback_repository_impl.dart';
@@ -239,6 +250,16 @@ Future<void> init() async {
         deleteNewsUseCase: sl(),
       ));
 
+  // Features - Chat
+  // Bloc
+  sl.registerFactory(() => ChatBloc(
+        getChatsUseCase: sl(),
+        searchChatsUseCase: sl(),
+        getMessagesUseCase: sl(),
+        sendMessageUseCase: sl(),
+        deleteMessageUseCase: sl(),
+      ));
+
   // Features - Feedback
   // Bloc
   sl.registerFactory(
@@ -271,6 +292,13 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateNewsUseCase(sl()));
   sl.registerLazySingleton(() => UpdateNewsUseCase(sl()));
   sl.registerLazySingleton(() => DeleteNewsUseCase(sl()));
+
+  // Chat Use Cases
+  sl.registerLazySingleton(() => GetChatsUseCase(sl()));
+  sl.registerLazySingleton(() => SearchChatsUseCase(sl()));
+  sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteMessageUseCase(sl()));
 
   // Feedback Use Cases
   sl.registerLazySingleton(() => GetFeedbacksUseCase(sl()));
@@ -345,6 +373,9 @@ Future<void> init() async {
   sl.registerLazySingleton<FeedbackRepository>(
     () => FeedbackRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<ChatRepository>(
+    () => ChatRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
@@ -382,6 +413,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<FeedbackRemoteDataSource>(
     () => FeedbackRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
   );
 
   // Use cases
