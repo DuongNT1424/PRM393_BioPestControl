@@ -15,6 +15,7 @@ import 'package:prm393_biopestcontrol/features/auth/presentation/bloc/auth_event
 import 'package:prm393_biopestcontrol/features/order/presentation/pages/admin_order_list_page.dart';
 import 'package:prm393_biopestcontrol/features/news/presentation/pages/news_page.dart';
 import 'package:prm393_biopestcontrol/features/feedback/presentation/pages/feedback_page.dart';
+import 'package:prm393_biopestcontrol/features/chemical/presentation/pages/chemical_page.dart';
 
 /// [ManagementDrawer] là Menu bên (Side Menu) dùng cho hệ thống quản trị.
 ///
@@ -212,6 +213,17 @@ class ManagementDrawer extends StatelessWidget {
                     context,
                     NewsPage(user: user),
                     '/news',
+                  ),
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.science_outlined,
+                  title: 'Chemical Safety',
+                  selected: currentRoute == '/chemicals',
+                  onTap: () => _navigateToPage(
+                    context,
+                    ChemicalPage(user: user),
+                    '/chemicals',
                   ),
                 ),
                 _buildMenuItem(
