@@ -128,6 +128,16 @@ import 'package:prm393_biopestcontrol/features/news/domain/usecases/search_news_
 import 'package:prm393_biopestcontrol/features/news/domain/usecases/update_news_usecase.dart';
 import 'package:prm393_biopestcontrol/features/news/presentation/bloc/news_bloc.dart';
 
+// Features - Map
+import 'package:http/http.dart' as http;
+import 'package:prm393_biopestcontrol/features/map/data/datasources/map_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/map/data/repositories/map_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/repositories/map_repository.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/usecases/get_maps.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/usecases/search_location.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/usecases/get_direction.dart';
+import 'package:prm393_biopestcontrol/features/map/presentation/bloc/map_bloc.dart';
+
 // Features - Feedback
 import 'package:prm393_biopestcontrol/features/feedback/data/datasources/feedback_remote_data_source.dart';
 import 'package:prm393_biopestcontrol/features/feedback/data/repositories/feedback_repository_impl.dart';
@@ -239,6 +249,14 @@ Future<void> init() async {
         deleteNewsUseCase: sl(),
       ));
 
+  // Features - Map
+  // Bloc
+  sl.registerFactory(() => MapBloc(
+        getStoreLocationsUseCase: sl(),
+        searchLocationUseCase: sl(),
+        getDirectionUseCase: sl(),
+      ));
+
   // Features - Feedback
   // Bloc
   sl.registerFactory(
@@ -271,6 +289,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateNewsUseCase(sl()));
   sl.registerLazySingleton(() => UpdateNewsUseCase(sl()));
   sl.registerLazySingleton(() => DeleteNewsUseCase(sl()));
+
+  // Map Use Cases
+  sl.registerLazySingleton(() => GetStoreLocationsUseCase(sl()));
+  sl.registerLazySingleton(() => SearchLocationUseCase(sl()));
+  sl.registerLazySingleton(() => GetDirectionUseCase(sl()));
 
   // Feedback Use Cases
   sl.registerLazySingleton(() => GetFeedbacksUseCase(sl()));
@@ -345,6 +368,9 @@ Future<void> init() async {
   sl.registerLazySingleton<FeedbackRepository>(
     () => FeedbackRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<MapRepository>(
+    () => MapRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
@@ -382,6 +408,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<FeedbackRemoteDataSource>(
     () => FeedbackRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+  sl.registerLazySingleton<MapRemoteDataSource>(
+    () => MapRemoteDataSourceImpl(
+      firestore: sl<FirebaseFirestore>(),
+      client: sl<http.Client>(),
+    ),
   );
 
   // Use cases
@@ -445,6 +477,7 @@ Future<void> init() async {
   );
 
   // External
+  sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
   sl.registerLazySingleton(() => GoogleSignIn());
