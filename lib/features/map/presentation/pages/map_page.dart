@@ -81,7 +81,9 @@ class _MapPageState extends State<MapPage> {
             title: const Text(
               'Bản đồ & Cửa hàng',
               style: TextStyle(
-                  color: AppColors.primaryColor, fontWeight: FontWeight.bold),
+                color: AppColors.primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             backgroundColor: Colors.white,
             elevation: 0,
@@ -119,7 +121,8 @@ class _MapPageState extends State<MapPage> {
               if (state is MapLoading) {
                 return const Center(
                   child: CircularProgressIndicator(
-                      color: AppColors.primaryColor),
+                    color: AppColors.primaryColor,
+                  ),
                 );
               }
 
@@ -128,21 +131,24 @@ class _MapPageState extends State<MapPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.wifi_off,
-                          size: 64, color: Colors.grey),
+                      const Icon(Icons.wifi_off, size: 64, color: Colors.grey),
                       const SizedBox(height: 16),
-                      Text(state.message,
-                          style: const TextStyle(color: Colors.grey)),
+                      Text(
+                        state.message,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => context
-                            .read<MapBloc>()
-                            .add(LoadStoreLocationsEvent()),
+                        onPressed: () => context.read<MapBloc>().add(
+                          LoadStoreLocationsEvent(),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryColor,
                         ),
-                        child: const Text('Thử lại',
-                            style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          'Thử lại',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
@@ -154,8 +160,7 @@ class _MapPageState extends State<MapPage> {
                   children: [
                     _buildMap(context, state),
                     _buildSearchArea(context, state),
-                    if (state.route != null)
-                      _buildRouteInfo(context, state),
+                    if (state.route != null) _buildRouteInfo(context, state),
                     _buildNearbyStores(context, state),
                   ],
                 );
@@ -172,10 +177,7 @@ class _MapPageState extends State<MapPage> {
   Widget _buildMap(BuildContext context, MapLoaded state) {
     return FlutterMap(
       mapController: _mapController,
-      options: MapOptions(
-        initialCenter: _fromLocation,
-        initialZoom: 9,
-      ),
+      options: MapOptions(initialCenter: _fromLocation, initialZoom: 9),
       children: [
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -209,11 +211,12 @@ class _MapPageState extends State<MapPage> {
             if (_selectedPlace != null)
               Marker(
                 point: LatLng(
-                    _selectedPlace!.latitude, _selectedPlace!.longitude),
+                  _selectedPlace!.latitude,
+                  _selectedPlace!.longitude,
+                ),
                 width: 40,
                 height: 40,
-                child: const Icon(Icons.place,
-                    color: Colors.red, size: 40),
+                child: const Icon(Icons.place, color: Colors.red, size: 40),
               ),
             ...state.stores.map(
               (store) => Marker(
@@ -265,18 +268,19 @@ class _MapPageState extends State<MapPage> {
                   if (value.trim().isEmpty) {
                     context.read<MapBloc>().add(ClearSearchEvent());
                   } else {
-                    context
-                        .read<MapBloc>()
-                        .add(SearchLocationEvent(value.trim()));
+                    context.read<MapBloc>().add(
+                      SearchLocationEvent(value.trim()),
+                    );
                   }
                 });
               },
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm địa điểm...',
-                hintStyle:
-                    const TextStyle(color: Colors.grey, fontSize: 14),
-                prefixIcon: const Icon(Icons.search,
-                    color: AppColors.primaryColor),
+                hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AppColors.primaryColor,
+                ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, size: 18),
@@ -288,8 +292,10 @@ class _MapPageState extends State<MapPage> {
                       )
                     : null,
                 border: InputBorder.none,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
               ),
             ),
           ),
@@ -298,7 +304,6 @@ class _MapPageState extends State<MapPage> {
               margin: const EdgeInsets.only(top: 4),
               constraints: const BoxConstraints(maxHeight: 220),
               decoration: BoxDecoration(
-                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -308,31 +313,41 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ],
               ),
-              child: ListView.separated(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                itemCount: state.searchResults.length,
-                separatorBuilder: (_, i) => const Divider(height: 1),
-                itemBuilder: (ctx, index) {
-                  final place = state.searchResults[index];
-                  return ListTile(
-                    dense: true,
-                    leading: const Icon(Icons.place_outlined,
-                        color: AppColors.primaryColor, size: 20),
-                    title: Text(
-                      place.displayName,
-                      style: const TextStyle(fontSize: 13),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () {
-                      setState(() => _selectedPlace = place);
-                      _mapController.move(
-                          LatLng(place.latitude, place.longitude), 14);
-                      context.read<MapBloc>().add(ClearSearchEvent());
-                    },
-                  );
-                },
+              child: Material(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  itemCount: state.searchResults.length,
+                  separatorBuilder: (_, i) => const Divider(height: 1),
+                  itemBuilder: (ctx, index) {
+                    final place = state.searchResults[index];
+                    return ListTile(
+                      dense: true,
+                      leading: const Icon(
+                        Icons.place_outlined,
+                        color: AppColors.primaryColor,
+                        size: 20,
+                      ),
+                      title: Text(
+                        place.displayName,
+                        style: const TextStyle(fontSize: 13),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () {
+                        setState(() => _selectedPlace = place);
+                        _mapController.move(
+                          LatLng(place.latitude, place.longitude),
+                          14,
+                        );
+                        context.read<MapBloc>().add(ClearSearchEvent());
+                      },
+                    );
+                  },
+                ),
               ),
             ),
         ],
@@ -372,8 +387,7 @@ class _MapPageState extends State<MapPage> {
               ),
             ),
             InkWell(
-              onTap: () =>
-                  context.read<MapBloc>().add(ClearDirectionEvent()),
+              onTap: () => context.read<MapBloc>().add(ClearDirectionEvent()),
               child: const Icon(Icons.close, color: Colors.white, size: 20),
             ),
           ],
@@ -387,10 +401,18 @@ class _MapPageState extends State<MapPage> {
 
     final sortedStores = List<StoreLocationEntity>.from(state.stores);
     sortedStores.sort((a, b) {
-      final distanceA = Geolocator.distanceBetween(_fromLocation.latitude,
-          _fromLocation.longitude, a.latitude, a.longitude);
-      final distanceB = Geolocator.distanceBetween(_fromLocation.latitude,
-          _fromLocation.longitude, b.latitude, b.longitude);
+      final distanceA = Geolocator.distanceBetween(
+        _fromLocation.latitude,
+        _fromLocation.longitude,
+        a.latitude,
+        a.longitude,
+      );
+      final distanceB = Geolocator.distanceBetween(
+        _fromLocation.latitude,
+        _fromLocation.longitude,
+        b.latitude,
+        b.longitude,
+      );
       return distanceA.compareTo(distanceB);
     });
 
@@ -407,16 +429,19 @@ class _MapPageState extends State<MapPage> {
           itemBuilder: (ctx, index) {
             final store = sortedStores[index];
             final distance = Geolocator.distanceBetween(
-                _fromLocation.latitude,
-                _fromLocation.longitude,
-                store.latitude,
-                store.longitude);
+              _fromLocation.latitude,
+              _fromLocation.longitude,
+              store.latitude,
+              store.longitude,
+            );
             return StoreCard(
               store: store,
               distanceMeters: distance,
               onTap: () {
                 _mapController.move(
-                    LatLng(store.latitude, store.longitude), 14);
+                  LatLng(store.latitude, store.longitude),
+                  14,
+                );
                 _showStoreSheet(context, store);
               },
               onDirection: () => _getDirection(context, store),
@@ -428,23 +453,27 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _getDirection(BuildContext context, StoreLocationEntity store) {
-    context.read<MapBloc>().add(GetDirectionEvent(
-          from: _fromLocation,
-          store: store,
-        ));
+    context.read<MapBloc>().add(
+      GetDirectionEvent(from: _fromLocation, store: store),
+    );
     _mapController.move(_fromLocation, 10);
   }
 
   Future<void> _openGoogleMaps(StoreLocationEntity store) async {
     final url = Uri.parse(
-        'https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}');
+      'https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}',
+    );
     await launchUrl(url, mode: LaunchMode.externalApplication);
   }
 
   void _showStoreSheet(BuildContext context, StoreLocationEntity store) {
     final mapBloc = context.read<MapBloc>();
-    final distance = Geolocator.distanceBetween(_fromLocation.latitude,
-        _fromLocation.longitude, store.latitude, store.longitude);
+    final distance = Geolocator.distanceBetween(
+      _fromLocation.latitude,
+      _fromLocation.longitude,
+      store.latitude,
+      store.longitude,
+    );
     final distanceText = distance < 1000
         ? '${distance.round()} m'
         : '${(distance / 1000).toStringAsFixed(1)} km';
@@ -507,14 +536,16 @@ class _MapPageState extends State<MapPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.location_on_outlined,
-                    size: 16, color: Colors.grey),
+                const Icon(
+                  Icons.location_on_outlined,
+                  size: 16,
+                  color: Colors.grey,
+                ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     store.address,
-                    style:
-                        TextStyle(fontSize: 13, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                   ),
                 ),
               ],
@@ -523,13 +554,15 @@ class _MapPageState extends State<MapPage> {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Icon(Icons.phone_outlined,
-                      size: 16, color: Colors.grey),
+                  const Icon(
+                    Icons.phone_outlined,
+                    size: 16,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     store.phone!,
-                    style:
-                        TextStyle(fontSize: 13, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                   ),
                 ],
               ),
@@ -541,17 +574,17 @@ class _MapPageState extends State<MapPage> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.pop(context);
-                      mapBloc.add(GetDirectionEvent(
-                        from: _fromLocation,
-                        store: store,
-                      ));
+                      mapBloc.add(
+                        GetDirectionEvent(from: _fromLocation, store: store),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     icon: const Icon(Icons.directions, size: 18),
                     label: const Text('Chỉ đường'),
@@ -566,11 +599,11 @@ class _MapPageState extends State<MapPage> {
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primaryColor,
-                      side:
-                          const BorderSide(color: AppColors.primaryColor),
+                      side: const BorderSide(color: AppColors.primaryColor),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     icon: const Icon(Icons.map_outlined, size: 18),
                     label: const Text('Google Maps'),
