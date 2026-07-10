@@ -139,6 +139,18 @@ import 'package:prm393_biopestcontrol/features/chat/domain/usecases/send_message
 import 'package:prm393_biopestcontrol/features/chat/domain/usecases/delete_message.dart';
 import 'package:prm393_biopestcontrol/features/chat/presentation/bloc/chat_bloc.dart';
 
+// Features - Chemical Safety
+import 'package:prm393_biopestcontrol/features/chemical/data/datasources/chemical_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/chemical/data/repositories/chemical_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/chemical/domain/repositories/chemical_repository.dart';
+import 'package:prm393_biopestcontrol/features/chemical/domain/usecases/get_chemicals_usecase.dart';
+import 'package:prm393_biopestcontrol/features/chemical/domain/usecases/search_chemicals_usecase.dart';
+import 'package:prm393_biopestcontrol/features/chemical/domain/usecases/filter_chemicals_usecase.dart';
+import 'package:prm393_biopestcontrol/features/chemical/domain/usecases/create_chemical_usecase.dart';
+import 'package:prm393_biopestcontrol/features/chemical/domain/usecases/update_chemical_usecase.dart';
+import 'package:prm393_biopestcontrol/features/chemical/domain/usecases/delete_chemical_usecase.dart';
+import 'package:prm393_biopestcontrol/features/chemical/presentation/bloc/chemical_bloc.dart';
+
 // Features - Feedback
 import 'package:prm393_biopestcontrol/features/feedback/data/datasources/feedback_remote_data_source.dart';
 import 'package:prm393_biopestcontrol/features/feedback/data/repositories/feedback_repository_impl.dart';
@@ -260,6 +272,17 @@ Future<void> init() async {
         deleteMessageUseCase: sl(),
       ));
 
+  // Features - Chemical Safety
+  // Bloc
+  sl.registerFactory(() => ChemicalBloc(
+        getChemicalsUseCase: sl(),
+        searchChemicalsUseCase: sl(),
+        filterChemicalsUseCase: sl(),
+        createChemicalUseCase: sl(),
+        updateChemicalUseCase: sl(),
+        deleteChemicalUseCase: sl(),
+      ));
+
   // Features - Feedback
   // Bloc
   sl.registerFactory(
@@ -299,6 +322,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
   sl.registerLazySingleton(() => SendMessageUseCase(sl()));
   sl.registerLazySingleton(() => DeleteMessageUseCase(sl()));
+
+  // Chemical Safety Use Cases
+  sl.registerLazySingleton(() => GetChemicalsUseCase(sl()));
+  sl.registerLazySingleton(() => SearchChemicalsUseCase(sl()));
+  sl.registerLazySingleton(() => FilterChemicalsUseCase(sl()));
+  sl.registerLazySingleton(() => CreateChemicalUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateChemicalUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteChemicalUseCase(sl()));
 
   // Feedback Use Cases
   sl.registerLazySingleton(() => GetFeedbacksUseCase(sl()));
@@ -376,6 +407,9 @@ Future<void> init() async {
   sl.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<ChemicalRepository>(
+    () => ChemicalRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // Data sources
   sl.registerLazySingleton<StatisticsLocalDataSource>(
@@ -416,6 +450,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<ChatRemoteDataSource>(
     () => ChatRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+  sl.registerLazySingleton<ChemicalRemoteDataSource>(
+    () => ChemicalRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
   );
 
   // Use cases
