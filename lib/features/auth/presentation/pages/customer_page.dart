@@ -29,6 +29,7 @@ import 'package:prm393_biopestcontrol/features/order/presentation/pages/customer
 import 'package:prm393_biopestcontrol/features/news/presentation/pages/customer_news_page.dart';
 import 'package:prm393_biopestcontrol/features/feedback/presentation/pages/feedback_page.dart';
 import 'package:prm393_biopestcontrol/features/map/presentation/pages/map_page.dart';
+import 'package:prm393_biopestcontrol/features/chemical/presentation/pages/customer_chemical_page.dart';
 
 class CustomerPage extends StatefulWidget {
   final AuthEntity user;
@@ -832,6 +833,16 @@ class _CustomerPageState extends State<CustomerPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CustomerNewsPage()),
+              );
+            },
+          ),
+          _buildProfileMenuItem(
+            Icons.science_outlined,
+            'Tra cứu An toàn Hóa chất',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CustomerChemicalPage()),
               );
             },
           ),
