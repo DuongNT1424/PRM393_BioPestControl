@@ -139,6 +139,16 @@ import 'package:prm393_biopestcontrol/features/chat/domain/usecases/send_message
 import 'package:prm393_biopestcontrol/features/chat/domain/usecases/delete_message.dart';
 import 'package:prm393_biopestcontrol/features/chat/presentation/bloc/chat_bloc.dart';
 
+// Features - Map
+import 'package:http/http.dart' as http;
+import 'package:prm393_biopestcontrol/features/map/data/datasources/map_remote_data_source.dart';
+import 'package:prm393_biopestcontrol/features/map/data/repositories/map_repository_impl.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/repositories/map_repository.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/usecases/get_maps.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/usecases/search_location.dart';
+import 'package:prm393_biopestcontrol/features/map/domain/usecases/get_direction.dart';
+import 'package:prm393_biopestcontrol/features/map/presentation/bloc/map_bloc.dart';
+
 // Features - Chemical Safety
 import 'package:prm393_biopestcontrol/features/chemical/data/datasources/chemical_remote_data_source.dart';
 import 'package:prm393_biopestcontrol/features/chemical/data/repositories/chemical_repository_impl.dart';
@@ -272,6 +282,14 @@ Future<void> init() async {
         deleteMessageUseCase: sl(),
       ));
 
+  // Features - Map
+  // Bloc
+  sl.registerFactory(() => MapBloc(
+        getStoreLocationsUseCase: sl(),
+        searchLocationUseCase: sl(),
+        getDirectionUseCase: sl(),
+      ));
+
   // Features - Chemical Safety
   // Bloc
   sl.registerFactory(() => ChemicalBloc(
@@ -322,6 +340,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
   sl.registerLazySingleton(() => SendMessageUseCase(sl()));
   sl.registerLazySingleton(() => DeleteMessageUseCase(sl()));
+
+  // Map Use Cases
+  sl.registerLazySingleton(() => GetStoreLocationsUseCase(sl()));
+  sl.registerLazySingleton(() => SearchLocationUseCase(sl()));
+  sl.registerLazySingleton(() => GetDirectionUseCase(sl()));
 
   // Chemical Safety Use Cases
   sl.registerLazySingleton(() => GetChemicalsUseCase(sl()));
@@ -407,6 +430,9 @@ Future<void> init() async {
   sl.registerLazySingleton<ChatRepository>(
     () => ChatRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerLazySingleton<MapRepository>(
+    () => MapRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton<ChemicalRepository>(
     () => ChemicalRepositoryImpl(remoteDataSource: sl()),
   );
@@ -450,6 +476,12 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<ChatRemoteDataSource>(
     () => ChatRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
+  );
+  sl.registerLazySingleton<MapRemoteDataSource>(
+    () => MapRemoteDataSourceImpl(
+      firestore: sl<FirebaseFirestore>(),
+      client: sl<http.Client>(),
+    ),
   );
   sl.registerLazySingleton<ChemicalRemoteDataSource>(
     () => ChemicalRemoteDataSourceImpl(firestore: sl<FirebaseFirestore>()),
@@ -516,6 +548,7 @@ Future<void> init() async {
   );
 
   // External
+  sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
   sl.registerLazySingleton(() => GoogleSignIn());
