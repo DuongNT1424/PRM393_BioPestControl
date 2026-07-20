@@ -30,6 +30,7 @@ import 'package:prm393_biopestcontrol/features/news/presentation/pages/customer_
 import 'package:prm393_biopestcontrol/features/feedback/presentation/pages/feedback_page.dart';
 import 'package:prm393_biopestcontrol/features/map/presentation/pages/map_page.dart';
 import 'package:prm393_biopestcontrol/features/chemical/presentation/pages/customer_chemical_page.dart';
+import 'package:prm393_biopestcontrol/features/discount/presentation/pages/discount_management_page.dart';
 
 class CustomerPage extends StatefulWidget {
   final AuthEntity user;
@@ -854,6 +855,18 @@ class _CustomerPageState extends State<CustomerPage> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => FeedbackPage(user: widget.user),
+                ),
+              );
+            },
+          ),
+          _buildProfileMenuItem(
+            Icons.sell_outlined,
+            'Khuyến mãi & Ưu đãi',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DiscountManagementPage(user: widget.user),
                 ),
               );
             },
