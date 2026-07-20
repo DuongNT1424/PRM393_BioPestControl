@@ -21,6 +21,7 @@ class DiscountManagementPage extends StatefulWidget {
 
 class _DiscountManagementPageState extends State<DiscountManagementPage> {
   final TextEditingController _searchController = TextEditingController();
+  String _selectedFilter = 'all'; // 'all', 'active', 'inactive'
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,7 @@ class _DiscountManagementPageState extends State<DiscountManagementPage> {
       create: (context) => di.sl<DiscountBloc>()..add(LoadDiscounts()),
       child: Builder(
         builder: (context) {
+          final isStaffOrAdmin = widget.user.role?.toLowerCase() == 'admin' || widget.user.role?.toLowerCase() == 'staff';
           return Scaffold(
             appBar: AppBar(
               title: const Text('Discount Management'),
@@ -35,13 +37,15 @@ class _DiscountManagementPageState extends State<DiscountManagementPage> {
               elevation: 0,
               foregroundColor: Colors.black,
             ),
-            drawer: ManagementDrawer(
-              user: widget.user,
-              isAdmin: widget.user.role == 'admin',
-              onLogout: () {
-                // Handle logout if needed or let the drawer handle it via state
-              },
-            ),
+            drawer: isStaffOrAdmin
+              ? ManagementDrawer(
+                  user: widget.user,
+                  isAdmin: widget.user.role?.toLowerCase() == 'admin',
+                  onLogout: () {
+                    // Handle logout if needed
+                  },
+                )
+              : null,
             body: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -64,6 +68,55 @@ class _DiscountManagementPageState extends State<DiscountManagementPage> {
                     onChanged: (value) {
                       context.read<DiscountBloc>().add(SearchDiscounts(value));
                     },
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Filter Chips for Active / Inactive / All status
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Tất cả'),
+                          selected: _selectedFilter == 'all',
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() {
+                                _selectedFilter = 'all';
+                              });
+                              context.read<DiscountBloc>().add(LoadDiscounts());
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('Đang hoạt động'),
+                          selected: _selectedFilter == 'active',
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() {
+                                _selectedFilter = 'active';
+                              });
+                              context.read<DiscountBloc>().add(const FilterDiscounts(isActive: true));
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('Ngưng hoạt động'),
+                          selected: _selectedFilter == 'inactive',
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() {
+                                _selectedFilter = 'inactive';
+                              });
+                              context.read<DiscountBloc>().add(const FilterDiscounts(isActive: false));
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   
@@ -98,10 +151,10 @@ class _DiscountManagementPageState extends State<DiscountManagementPage> {
                               return DiscountCard(
                                 discount: discount,
                                 // Chỉ Admin mới có quyền sửa/xóa
-                                onEdit: widget.user.role == 'admin' 
+                                onEdit: widget.user.role?.toLowerCase() == 'admin' 
                                   ? () => _navigateToForm(context, discount: discount)
                                   : null,
-                                onDelete: widget.user.role == 'admin'
+                                onDelete: widget.user.role?.toLowerCase() == 'admin'
                                   ? () => _confirmDelete(context, discount.id!)
                                   : null,
                               );
@@ -116,7 +169,7 @@ class _DiscountManagementPageState extends State<DiscountManagementPage> {
               ),
             ),
             // Chỉ hiện nút thêm mới nếu là Admin
-            floatingActionButton: widget.user.role == 'admin' 
+            floatingActionButton: widget.user.role?.toLowerCase() == 'admin' 
               ? FloatingActionButton(
                   onPressed: () => _navigateToForm(context),
                   backgroundColor: AppColors.primaryColor,

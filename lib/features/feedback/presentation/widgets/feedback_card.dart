@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prm393_biopestcontrol/app/theme/app_colors.dart';
-import 'package:prm393_biopestcontrol/features/feedback/domain/entities/feedback.dart';
 import 'package:prm393_biopestcontrol/features/auth/domain/entities/auth_entity.dart';
+import '../../domain/entities/feedback.dart';
 
 class FeedbackCard extends StatelessWidget {
   final FeedbackEntity feedback;
@@ -23,8 +23,8 @@ class FeedbackCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
-    final isCustomer = currentUser.role == 'Customer';
-    final isStaffOrAdmin = currentUser.role == 'Staff' || currentUser.role == 'Admin';
+    final isCustomer = currentUser.role?.toLowerCase() == 'customer';
+    final isStaffOrAdmin = currentUser.role?.toLowerCase() == 'staff' || currentUser.role?.toLowerCase() == 'admin';
     final isOwnFeedback = feedback.customerId == currentUser.id;
     final hasReply = feedback.replyContent != null && feedback.replyContent!.isNotEmpty;
 
