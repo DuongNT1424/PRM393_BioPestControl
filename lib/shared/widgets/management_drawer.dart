@@ -113,7 +113,7 @@ class ManagementDrawer extends StatelessWidget {
             currentAccountPicture: CircleAvatar(
               backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
               child: Text(
-                user.name?[0].toUpperCase() ?? 'U',
+                (user.name?.isNotEmpty == true ? user.name![0].toUpperCase() : 'U'),
                 style: const TextStyle(fontSize: 40.0, color: AppColors.primaryColor, fontWeight: FontWeight.bold),
               ),
             ),

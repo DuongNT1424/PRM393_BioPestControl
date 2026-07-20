@@ -160,8 +160,8 @@ class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final isCustomer = widget.user.role == 'Customer';
-    final isStaffOrAdmin = widget.user.role == 'Staff' || widget.user.role == 'Admin';
+    final isCustomer = widget.user.role?.toLowerCase() == 'customer';
+    final isStaffOrAdmin = widget.user.role?.toLowerCase() == 'staff' || widget.user.role?.toLowerCase() == 'admin';
     final bool isAdmin = widget.user.role?.toLowerCase() == 'admin';
 
     return BlocProvider(

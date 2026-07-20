@@ -13,6 +13,11 @@ import '../bloc/order_event.dart';
 import '../bloc/order_state.dart';
 import 'payment_gateway_page.dart';
 import 'customer_order_detail_page.dart';
+import 'package:prm393_biopestcontrol/core/di/injection_container.dart' as di;
+import 'package:prm393_biopestcontrol/features/discount/presentation/bloc/discount_bloc.dart';
+import 'package:prm393_biopestcontrol/features/discount/presentation/bloc/discount_event.dart';
+import 'package:prm393_biopestcontrol/features/discount/presentation/bloc/discount_state.dart';
+import 'package:prm393_biopestcontrol/features/discount/domain/entities/discount_entity.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -27,6 +32,281 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   String _paymentMethod = 'COD'; // COD hoặc PayOS
+  DiscountEntity? _selectedDiscount;
+
+  double _calculateDiscountDeduction(CartState cartState, DiscountEntity? discount) {
+    if (discount == null || !discount.isActive) return 0.0;
+    
+    final now = DateTime.now();
+    if (now.isBefore(discount.startDate) || now.isAfter(discount.endDate)) {
+      return 0.0;
+    }
+
+    if (discount.isAllProducts) {
+      return cartState.totalPrice * (discount.discountPercent / 100);
+    } else {
+      double deduction = 0.0;
+      for (final item in cartState.items) {
+        final productId = item.product.id;
+        if (productId != null && discount.productIds.contains(productId)) {
+          deduction += (item.product.price * item.quantity) * (discount.discountPercent / 100);
+        }
+      }
+      return deduction;
+    }
+  }
+
+  void _showDiscountBottomSheet(BuildContext context, CartState cartState) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (bottomSheetContext) {
+        return BlocProvider.value(
+          value: BlocProvider.of<DiscountBloc>(context),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Khuyến mãi của bạn',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(bottomSheetContext),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: BlocBuilder<DiscountBloc, DiscountState>(
+                    builder: (context, state) {
+                      if (state is DiscountLoading) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: CircularProgressIndicator(color: AppColors.primaryColor),
+                          ),
+                        );
+                      }
+                      if (state is DiscountError) {
+                        return Center(child: Text('Lỗi: ${state.message}'));
+                      }
+                      if (state is DiscountsLoaded) {
+                        final now = DateTime.now();
+                        final activeDiscounts = state.discounts.where((d) {
+                          return d.isActive && 
+                                 !now.isBefore(d.startDate) && 
+                                 !now.isAfter(d.endDate);
+                        }).toList();
+
+                        if (activeDiscounts.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(24.0),
+                              child: Text('Hiện không có mã khuyến mãi nào khả dụng'),
+                            ),
+                          );
+                        }
+
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: activeDiscounts.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final discount = activeDiscounts[index];
+                            final deduction = _calculateDiscountDeduction(cartState, discount);
+                            final isApplicable = deduction > 0;
+                            final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
+
+                            return Card(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color: isApplicable 
+                                      ? AppColors.primaryColor.withOpacity(0.15) 
+                                      : Colors.grey[200]!,
+                                  width: 1.5,
+                                ),
+                              ),
+                              color: isApplicable 
+                                  ? AppColors.primaryColor.withOpacity(0.02) 
+                                  : Colors.grey[50]!,
+                              child: InkWell(
+                                onTap: isApplicable 
+                                    ? () {
+                                        setState(() {
+                                          _selectedDiscount = discount;
+                                        });
+                                        Navigator.pop(bottomSheetContext);
+                                      }
+                                    : () {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Khuyến mãi này không áp dụng cho sản phẩm trong giỏ hàng'),
+                                            backgroundColor: Colors.redAccent,
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                borderRadius: BorderRadius.circular(12),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: isApplicable 
+                                            ? AppColors.primaryColor.withOpacity(0.1) 
+                                            : Colors.grey[200],
+                                        child: Icon(
+                                          Icons.local_offer_outlined,
+                                          color: isApplicable ? AppColors.primaryColor : Colors.grey[400],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              discount.name,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15,
+                                                color: isApplicable ? Colors.black87 : Colors.grey[500],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              discount.description ?? (discount.isAllProducts 
+                                                  ? 'Áp dụng cho toàn bộ sản phẩm' 
+                                                  : 'Áp dụng cho một số sản phẩm đặc thù'),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: isApplicable ? Colors.grey[600] : Colors.grey[400],
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'HSD: ${DateFormat('dd/MM/yyyy').format(discount.endDate)}',
+                                              style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: isApplicable 
+                                                  ? AppColors.primaryColor 
+                                                  : Colors.grey[300],
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              '-${discount.discountPercent.toInt()}%',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          if (isApplicable) ...[
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              '-${currencyFormat.format(deduction)}',
+                                              style: const TextStyle(
+                                                color: AppColors.primaryColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }
+                      return const Center(child: Text('Không có dữ liệu'));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDiscountSelector(BuildContext context, CartState cartState) {
+    final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
+    
+    if (_selectedDiscount == null) {
+      return Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F7F7),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: ListTile(
+          onTap: () => _showDiscountBottomSheet(context, cartState),
+          leading: const Icon(Icons.local_offer_outlined, color: AppColors.primaryColor),
+          title: const Text(
+            'Chọn mã khuyến mãi',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+          ),
+          trailing: const Icon(Icons.keyboard_arrow_right, color: Colors.grey),
+        ),
+      );
+    } else {
+      final deduction = _calculateDiscountDeduction(cartState, _selectedDiscount);
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColors.primaryColor.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primaryColor.withOpacity(0.15), width: 1.5),
+        ),
+        child: ListTile(
+          onTap: () => _showDiscountBottomSheet(context, cartState),
+          leading: const Icon(Icons.check_circle, color: AppColors.primaryColor),
+          title: Text(
+            _selectedDiscount!.name,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+          ),
+          subtitle: Text(
+            'Được giảm -${currencyFormat.format(deduction)} (-${_selectedDiscount!.discountPercent.toInt()}%)',
+            style: const TextStyle(fontSize: 12, color: AppColors.primaryColor, fontWeight: FontWeight.w600),
+          ),
+          trailing: IconButton(
+            icon: const Icon(Icons.cancel, color: Colors.redAccent, size: 20),
+            onPressed: () {
+              setState(() {
+                _selectedDiscount = null;
+              });
+            },
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -60,6 +340,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       );
     }).toList();
 
+    final discountDeduction = _calculateDiscountDeduction(cartState, _selectedDiscount);
+    final finalAmount = cartState.totalPrice - discountDeduction;
+
     final order = OrderEntity(
       id: '', // Sẽ được sinh tự động bởi Firestore
       customerId: customerId,
@@ -67,10 +350,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
       customerPhone: _phoneController.text.trim(),
       shippingAddress: _addressController.text.trim(),
       items: orderItems,
-      totalAmount: cartState.totalPrice,
+      totalAmount: finalAmount, // Số tiền sau khi áp dụng mã giảm giá
       paymentMethod: _paymentMethod,
-      paymentStatus: _paymentMethod == 'PayOS' ? 'Pending' : 'Pending', // COD hoặc PayOS đều chờ xác nhận/thanh toán
-      deliveryStatus: 'Pending', // Chờ xác nhận đơn hàng
+      paymentStatus: 'Pending',
+      deliveryStatus: 'Pending',
       createdAt: DateTime.now(),
     );
 
@@ -84,57 +367,62 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final authState = context.read<AuthBloc>().state;
     final customerId = authState is Authenticated ? (authState.user.id ?? '') : '';
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Xác nhận đặt hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+    return BlocProvider<DiscountBloc>(
+      create: (_) => di.sl<DiscountBloc>()..add(LoadDiscounts()),
+      child: Scaffold(
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: BlocConsumer<OrderBloc, OrderState>(
-        listener: (context, state) {
-          if (state is OrderError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.redAccent),
-            );
-          }
-          if (state is OrderActionSuccess) {
-            // Lưu lại tổng số tiền trước khi xóa sạch giỏ hàng
-            final orderAmount = context.read<CartBloc>().state.totalPrice;
-
-            // Xóa sạch giỏ hàng khi đặt hàng thành công
-            context.read<CartBloc>().add(ClearCartEvent());
-
-            if (_paymentMethod == 'PayOS') {
-              // Điều hướng sang cổng quét mã QR PayOS
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PaymentGatewayPage(
-                    orderId: state.orderId ?? '',
-                    totalAmount: orderAmount,
-                  ),
-                ),
-              );
-            } else {
-              // Thanh toán COD thành công: Chuyển trực tiếp sang chi tiết đơn hàng
+        appBar: AppBar(
+          title: const Text('Xác nhận đặt hàng', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          elevation: 0,
+          centerTitle: true,
+        ),
+        body: BlocConsumer<OrderBloc, OrderState>(
+          listener: (context, state) {
+            if (state is OrderError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Đặt hàng thành công! Đang xử lý đơn hàng...'), backgroundColor: AppColors.primaryColor),
-              );
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CustomerOrderDetailPage(orderId: state.orderId ?? ''),
-                ),
+                SnackBar(content: Text(state.message), backgroundColor: Colors.redAccent),
               );
             }
-          }
-        },
+            if (state is OrderActionSuccess) {
+              final cartState = context.read<CartBloc>().state;
+              final discountDeduction = _calculateDiscountDeduction(cartState, _selectedDiscount);
+              final orderAmount = cartState.totalPrice - discountDeduction;
+
+              // Xóa sạch giỏ hàng khi đặt hàng thành công
+              context.read<CartBloc>().add(ClearCartEvent());
+
+              if (_paymentMethod == 'PayOS') {
+                // Điều hướng sang cổng quét mã QR PayOS
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentGatewayPage(
+                      orderId: state.orderId ?? '',
+                      totalAmount: orderAmount,
+                    ),
+                  ),
+                );
+              } else {
+                // Thanh toán COD thành công: Chuyển trực tiếp sang chi tiết đơn hàng
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Đặt hàng thành công! Đang xử lý đơn hàng...'), backgroundColor: AppColors.primaryColor),
+                );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CustomerOrderDetailPage(orderId: state.orderId ?? ''),
+                  ),
+                );
+              }
+            }
+          },
         builder: (context, state) {
           final cartState = context.watch<CartBloc>().state;
           final isProcessing = state is OrderLoading;
+          final discountDeduction = _calculateDiscountDeduction(cartState, _selectedDiscount);
+          final finalTotal = cartState.totalPrice - discountDeduction;
 
           return Stack(
             children: [
@@ -186,6 +474,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                             validator: (val) => val == null || val.trim().isEmpty ? 'Vui lòng nhập địa chỉ nhận hàng' : null,
                           ),
+                          const SizedBox(height: 32),
+                          const Text(
+                            'Khuyến mãi & Ưu đãi',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildDiscountSelector(context, cartState),
                           const SizedBox(height: 32),
                           const Text(
                             'Phương thức thanh toán',
@@ -266,12 +561,36 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       child: SafeArea(
                         child: Column(
                           children: [
+                            if (discountDeduction > 0) ...[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Tạm tính:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                                  Text(
+                                    currencyFormat.format(cartState.totalPrice),
+                                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Khuyến mãi:', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                                  Text(
+                                    '-${currencyFormat.format(discountDeduction)}',
+                                    style: const TextStyle(fontSize: 14, color: AppColors.primaryColor, fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                              const Divider(height: 24),
+                            ],
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text('Tổng số tiền cần trả:', style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.bold)),
                                 Text(
-                                  currencyFormat.format(cartState.totalPrice),
+                                  currencyFormat.format(finalTotal),
                                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primaryColor),
                                 ),
                               ],
@@ -312,6 +631,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           );
         },
       ),
+      ),  // Close BlocProvider<DiscountBloc>
     );
   }
 }
