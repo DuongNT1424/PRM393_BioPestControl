@@ -203,16 +203,23 @@ class _CustomerPageState extends State<CustomerPage> {
                             ),
                           ),
                           const SizedBox(width: 16),
+                          
+                          // ĐÂY LÀ VỊ TRÍ CỦA NÚT GIỎ HÀNG (CART)
+                          // Nút Giỏ hàng được đặt ở góc trên của màn hình (thường là thanh AppBar hoặc Header của Store Tab).
                           GestureDetector(
+                            // Khi người dùng bấm vào icon giỏ hàng
                             onTap: () {
+                              // Chuyển hướng (push) màn hình hiện tại sang trang CartPage
                               Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage()));
                             },
+                            // BlocBuilder lắng nghe CartBloc để tự động cập nhật số lượng (badge) đỏ trên giỏ hàng
                             child: BlocBuilder<CartBloc, CartState>(
                               builder: (context, state) {
                                 return Stack(
                                   clipBehavior: Clip.none,
                                   children: [
                                     Icon(Icons.shopping_cart_outlined, color: Colors.grey[700], size: 22),
+                                    // Nếu trong giỏ có hàng (totalItems > 0), hiển thị chấm đỏ báo số lượng
                                     if (state.totalItems > 0)
                                       Positioned(
                                         right: -4,

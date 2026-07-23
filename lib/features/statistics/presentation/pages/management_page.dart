@@ -19,9 +19,12 @@ class ManagementPage extends StatelessWidget {
 
   const ManagementPage({super.key, required this.user});
 
+  /// Hàm `build` khởi tạo và xây dựng giao diện chính của Dashboard.
   @override
   Widget build(BuildContext context) {
+    // Phân quyền hiển thị (Admin thì thấy nhiều thống kê hơn Staff)
     final bool isAdmin = user.role?.toLowerCase() == 'admin';
+    // Định dạng tiền tệ VND
     final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
 
     return Scaffold(
@@ -35,39 +38,49 @@ class ManagementPage extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.primaryColor),
         actions: [
+          // Nút Đăng xuất ở thanh AppBar
           IconButton(
             onPressed: () {
+              // Phát sự kiện LogoutRequested tới AuthBloc
               context.read<AuthBloc>().add(LogoutRequested());
+              // Xóa toàn bộ stack và pop về màn hình đầu tiên (Login)
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             icon: const Icon(Icons.logout, color: Colors.redAccent),
           ),
         ],
       ),
+      // Drawer (Menu bên trái)
       drawer: ManagementDrawer(
         user: user,
         isAdmin: isAdmin,
         onLogout: () {
+          // Xử lý đăng xuất khi bấm từ trong Menu
           context.read<AuthBloc>().add(LogoutRequested());
           Navigator.of(context).popUntil((route) => route.isFirst);
         },
       ),
+      // Lắng nghe và xây dựng lại body theo trạng thái của StatisticsBloc
       body: BlocBuilder<StatisticsBloc, StatisticsState>(
         builder: (context, state) {
           if (state is StatisticsLoading) {
+            // Đang tải dữ liệu
             return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor));
           }
           
           if (state is StatisticsError) {
+            // Có lỗi xảy ra trong lúc lấy dữ liệu
             return Center(child: Text(state.message, style: const TextStyle(color: AppColors.primaryColor)));
           }
 
           if (state is StatisticsLoaded) {
             final stats = state.statistics;
             
+            // Hỗ trợ kéo vuốt xuống để Refresh lại dữ liệu
             return RefreshIndicator(
               color: AppColors.primaryColor,
               onRefresh: () async {
+                // Gửi lại sự kiện tải thống kê kèm theo bộ lọc hiện tại
                 context.read<StatisticsBloc>().add(LoadStatisticsEvent(filterType: state.currentFilter));
               },
               child: SingleChildScrollView(
@@ -107,6 +120,7 @@ class ManagementPage extends StatelessWidget {
                             ],
                           ),
                         ),
+                        // Nếu là Admin thì hiện Dropdown để chọn bộ lọc thời gian
                         if (isAdmin) _buildFilterDropdown(context, state.currentFilter),
                       ],
                     ),
@@ -180,6 +194,7 @@ class ManagementPage extends StatelessWidget {
     );
   }
 
+  /// Hàm hỗ trợ vẽ thành phần Dropdown chọn bộ lọc (Hôm nay, Tuần, Tháng)
   Widget _buildFilterDropdown(BuildContext context, String currentFilter) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
@@ -201,8 +216,10 @@ class ManagementPage extends StatelessWidget {
           dropdownColor: Colors.white,
           icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: AppColors.primaryColor),
           style: const TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.w700, fontSize: 13),
+          // Xử lý sự kiện khi người dùng chọn một mục khác
           onChanged: (String? newValue) {
             if (newValue != null) {
+              // Bắn sự kiện LoadStatisticsEvent tới Bloc với filterType mới
               context.read<StatisticsBloc>().add(LoadStatisticsEvent(filterType: newValue));
             }
           },

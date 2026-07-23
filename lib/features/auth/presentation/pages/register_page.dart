@@ -32,12 +32,14 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  /// Hàm `build` khởi tạo và hiển thị cấu trúc giao diện Đăng Ký
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
       body: BlocConsumer<AuthBloc, AuthState>(
-        // Lắng nghe trạng thái từ AuthBloc
+        // `listener` lắng nghe các State được emit từ AuthBloc để phản hồi lại bằng UI phụ 
+        // (như SnackBar, Dialog) hoặc điều hướng màn hình.
         listener: (context, state) {
           if (state is Authenticated) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -47,12 +49,13 @@ class _RegisterPageState extends State<RegisterPage> {
             // KHÔNG dùng pushAndRemoveUntil vì sẽ xóa route gốc gây crash Navigator
             Navigator.of(context).popUntil((route) => route.isFirst);
           } else if (state is AuthError) {
-            // Hiển thị thông báo lỗi từ server/logic
+            // Hiển thị thông báo lỗi từ server/logic bằng SnackBar
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
           }
         },
+        // `builder` thực hiện quá trình vẽ lại widget theo từng State nhận được.
         builder: (context, state) {
           return Stack(
             children: [
@@ -160,8 +163,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                   CustomButton(
                                     text: 'Đăng ký',
                                     icon: Icons.arrow_forward,
+                                    // Xử lý sự kiện bấm nút Đăng ký
                                     onPressed: () {
-                                      // Kiểm tra mật khẩu khớp nhau trước khi gửi request
+                                      // Kiểm tra mật khẩu khớp nhau trước khi gửi request cho tầng Logic
                                       if (_passwordController.text != _confirmPasswordController.text) {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(content: Text('Mật khẩu xác nhận không khớp!')),
@@ -169,7 +173,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         return;
                                       }
 
-                                      // Gửi sự kiện RegisterRequested tới AuthBloc
+                                      // Gửi sự kiện RegisterRequested kèm theo toàn bộ thông tin đăng ký tới AuthBloc
                                       context.read<AuthBloc>().add(
                                         RegisterRequested(
                                           email: _emailController.text,
@@ -196,6 +200,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                         ),
                                       ),
                                       GestureDetector(
+                                        // Hàm onTap để pop (đóng) trang đăng ký, trở về trang đăng nhập
                                         onTap: () => Navigator.pop(context),
                                         child: Text(
                                           'Đăng nhập ngay',

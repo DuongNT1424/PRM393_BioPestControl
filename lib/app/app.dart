@@ -15,26 +15,55 @@ import 'package:prm393_biopestcontrol/features/cart/presentation/bloc/cart_bloc.
 import 'package:prm393_biopestcontrol/features/order/presentation/bloc/order_bloc.dart';
 
 /// [MyApp] là widget gốc của toàn bộ ứng dụng.
-/// Nó khởi tạo MaterialApp, cung cấp theme và AuthBloc cho toàn bộ widget tree.
+/// Luồng Cart (Giỏ hàng):
+/// - Khởi tạo [CartBloc] thông qua [di.sl<CartBloc>()] và cung cấp (provide) cho toàn bộ 
+///   cây widget của ứng dụng thông qua [MultiBlocProvider].
+/// - Bằng cách này, mọi màn hình (ví dụ: CartPage, ProductDetailPage) đều có thể
+///   truy cập và thay đổi trạng thái của Giỏ hàng.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => di.sl<AuthBloc>()..add(AuthCheckRequested())),
-        BlocProvider(create: (_) => di.sl<CartBloc>()),
-        BlocProvider(create: (_) => di.sl<OrderBloc>()),
-      ],
-      child: MaterialApp(
-        title: 'BioPest Control',
-        debugShowCheckedModeBanner: false,
-        theme: _buildAppTheme(),
-        home: const AuthWrapper(),
+Widget build(BuildContext context) {
+  return MultiBlocProvider(
+    // Cung cấp nhiều Bloc cho toàn bộ ứng dụng
+    providers: [
+      // AuthBloc: quản lý trạng thái đăng nhập/đăng xuất
+      // Khi khởi tạo sẽ gửi event AuthCheckRequested
+      // để kiểm tra người dùng đã đăng nhập hay chưa
+      BlocProvider(
+        create: (_) => di.sl<AuthBloc>()..add(AuthCheckRequested()),
       ),
-    );
-  }
+
+      // CartBloc: quản lý giỏ hàng (thêm, xóa, cập nhật số lượng sản phẩm)
+      // Được cung cấp ở phạm vi toàn ứng dụng để mọi màn hình đều có thể truy cập
+      BlocProvider(
+        create: (_) => di.sl<CartBloc>(),
+      ),
+
+      // OrderBloc: quản lý các chức năng liên quan đến đơn hàng
+      // như tạo đơn, tải danh sách đơn hàng, cập nhật trạng thái đơn hàng
+      BlocProvider(
+        create: (_) => di.sl<OrderBloc>(),
+      ),
+    ],
+
+    child: MaterialApp(
+      title: 'BioPest Control',
+
+      // Ẩn banner DEBUG ở góc phải màn hình
+      debugShowCheckedModeBanner: false,
+
+      // Áp dụng theme chung cho ứng dụng
+      theme: _buildAppTheme(),
+
+      // Màn hình đầu tiên của ứng dụng
+      // AuthWrapper sẽ kiểm tra trạng thái đăng nhập
+      // để điều hướng đến LoginScreen hoặc HomeScreen
+      home: const AuthWrapper(),
+    ),
+  );
+}
 
   /// Xây dựng hệ thống Theme thống nhất cho toàn ứng dụng.
   /// Tách riêng để dễ bảo trì và mở rộng.

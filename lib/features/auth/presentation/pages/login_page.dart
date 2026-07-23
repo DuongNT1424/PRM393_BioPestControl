@@ -30,23 +30,25 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  /// Hàm `build` chịu trách nhiệm vẽ giao diện màn hình Đăng Nhập
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.surfaceColor,
       body: BlocConsumer<AuthBloc, AuthState>(
-        // Lắng nghe các thay đổi trạng thái từ AuthBloc
+        // `listener` được gọi mỗi khi AuthBloc phát ra một State mới.
+        // Dùng để thực hiện các side-effect (hiển thị thông báo, chuyển trang,...) không liên quan đến vẽ UI.
         listener: (context, state) {
           if (state is Authenticated) {
             // Hiển thị thông báo khi đăng nhập thành công
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đăng nhập thành công')),
             );
-            // Pop về route gốc `/` - AuthWrapper ở root sẽ tự cập nhật giao diện theo AuthBloc
+            // Pop về route gốc `/` - AuthWrapper ở root sẽ tự động cập nhật giao diện theo AuthBloc
             // KHÔNG dùng pushAndRemoveUntil vì sẽ xóa route gốc gây crash Navigator
             Navigator.of(context).popUntil((route) => route.isFirst);
           } else if (state is AuthError) {
-            // Hiển thị lỗi nếu quá trình đăng nhập thất bại
+            // Hiển thị lỗi bằng SnackBar nếu quá trình đăng nhập thất bại
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
@@ -58,9 +60,11 @@ class _LoginPageState extends State<LoginPage> {
                 backgroundColor: Colors.green,
               ),
             );
-            Navigator.of(context).pop(); // Đóng dialog nếu đang mở
+            // Đóng dialog quên mật khẩu nếu đang mở
+            Navigator.of(context).pop(); 
           }
         },
+        // `builder` được gọi để vẽ lại (rebuild) UI mỗi khi State thay đổi.
         builder: (context, state) {
           return Stack(
             children: [
@@ -130,7 +134,9 @@ class _LoginPageState extends State<LoginPage> {
                                         icon: Icons.lock_outline,
                                         obscureText: true,
                                         trailing: GestureDetector(
+                                          // Hàm onTap xử lý khi người dùng nhấn "Quên mật khẩu?"
                                           onTap: () {
+                                            // Hiển thị hộp thoại nhập email khôi phục
                                             showDialog(
                                               context: context,
                                               builder: (ctx) => ForgotPasswordDialog(
@@ -150,15 +156,16 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       const SizedBox(height: 32),
 
-                                      // Hiển thị loading hoặc nút đăng nhập
+                                      // Hiển thị vòng xoay nếu đang xử lý, ngược lại hiển thị nút
                                       if (state is AuthLoading)
                                         const Center(child: CircularProgressIndicator())
                                       else
                                         CustomButton(
                                           text: 'Đăng nhập',
                                           icon: Icons.arrow_forward,
+                                          // Hàm onPressed xử lý khi nhấn nút Đăng Nhập
                                           onPressed: () {
-                                            // Gửi sự kiện LoginRequested tới Bloc
+                                            // Lấy giá trị từ text field và gửi sự kiện LoginRequested tới Bloc
                                             context.read<AuthBloc>().add(
                                               LoginRequested(
                                                 email: _emailController.text,
@@ -189,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                       ),
 
-                                      // Nút đăng nhập bằng Google
+                                      // Nút đăng nhập bằng Google (bên trong xử lý phát sự kiện GoogleLoginRequested)
                                       const GoogleAuthButton(),
 
                                       const SizedBox(height: 32),
@@ -207,7 +214,9 @@ class _LoginPageState extends State<LoginPage> {
                                               ),
                                             ),
                                             GestureDetector(
+                                              // Hàm onTap xử lý khi nhấn "Đăng ký ngay"
                                               onTap: () {
+                                                // Chuyển hướng (push) sang màn hình Đăng ký
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(builder: (_) => const RegisterPage()),
