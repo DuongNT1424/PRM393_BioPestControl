@@ -95,7 +95,7 @@ The latest code is on the **`dev`** branch.
 <details>
 <summary>Tiếng Việt</summary>
 
-**BioPestControl** là ứng dụng Flutter cho cửa hàng vật tư nông nghiệp (thuốc trừ sâu sinh học, phân bón). Khách hàng xem sản phẩm, đặt hàng, thanh toán qua payOS, chat với nhân viên, tra cứu an toàn hóa chất và tìm cửa hàng gần nhất. Admin và Staff quản lý sản phẩm, kho, đơn hàng, khách hàng, tin tức và thông báo. Đồ án môn PRM393, Đại học FPT, nhóm 5 người (05 – 07/2026).
+**BioPestControl** là ứng dụng Flutter cho cửa hàng vật tư nông nghiệp (thuốc trừ sâu sinh học, phân bón). Khách hàng xem sản phẩm, đặt hàng, thanh toán qua payOS, chat với nhân viên, tra cứu an toàn hóa chất và tìm cửa hàng gần nhất. Admin và Staff quản lý sản phẩm, kho, đơn hàng, khách hàng, tin tức và thông báo. Project môn PRM393 (Mobile Programming), Đại học FPT, nhóm 5 người (05 – 07/2026).
 
 **Phần mình phụ trách (DuongNT1424):** quản lý an toàn hóa chất (xem, tìm kiếm, lọc; Admin thêm, sửa, xóa), chat thời gian thực bằng Firestore, bản đồ cửa hàng (tìm địa điểm, cửa hàng gần đây, chỉ đường). Mỗi tính năng làm đủ 3 tầng Clean Architecture với BLoC.
 
